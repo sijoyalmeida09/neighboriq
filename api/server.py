@@ -1,0 +1,156 @@
+"""
+NeighborIQ API Server
+
+Run:
+    python -m uvicorn neighboriq.api.server:app --host 0.0.0.0 --port 8000
+
+Endpoints:
+    GET  /health
+    GET  /analyze/{zip_code}
+    GET  /businesses/{zip_code}
+    GET  /opportunities/{zip_code}
+    GET  /content/{zip_code}/{niche}
+    POST /analyze (body: {zip_code, radius_mi?, run_llm?})
+"""
+from __future__ import annotations
+
+import json
+import logging
+import time
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+
+try:
+    from fastapi import FastAPI, HTTPException, Request
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.responses import JSONResponse
+    from pydantic import BaseModel
+except ImportError:
+    print("FastAPI not installed. Run: pip install fastapi uvicorn")
+    raise SystemExit(1)
+
+log = logging.getLogger("neighboriq.api")
+
+ROOT = Path(__file__).resolve().parent.parent
+
+app = FastAPI(
+    title="NeighborIQ API",
+    description="Neighborhood business intelligence — underserved niche detection",
+    version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── rate limiter ──────────────────────────────────────────────────────────────
+
+_rate_store: dict[str, list[float]] = defaultdict(list)
+_RATE_LIMIT = 10
+_RATE_WINDOW = 60.0
+
+
+def _check_rate(ip: str) -> bool:
+    now = time.time()
+    window_start = now - _RATE_WINDOW
+    timestamps = [t for t in _rate_store[ip] if t > window_start]
+    _rate_store[ip] = timestamps
+    if len(timestamps) >= _RATE_LIMIT:
+        return False
+    _rate_store[ip].append(now)
+    return True
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next: Any) -> Any:
+    ip = request.client.host if request.client else "unknown"
+    if not _check_rate(ip):
+        return JSONResponse(
+            status_code=429,
+            content={"error": "Rate limit exceeded. Max 10 requests/minute."},
+        )
+    return await call_next(request)
+
+
+# ── request models ────────────────────────────────────────────────────────────
+
+class AnalyzeRequest(BaseModel):
+    zip_code: str
+    radius_mi: float = 1.5
+    run_llm: bool = True
+
+
+# ── endpoints ─────────────────────────────────────────────────────────────────
+
+@app.get("/health")
+async def health() -> dict:
+    return {"status": "ok", "version": "0.1.0"}
+
+
+@app.get("/opportunities/{zip_code}")
+async def get_opportunities(zip_code: str, min_tier: str = "C") -> dict:
+    """Return cached opportunities for a zip code from DB."""
+    from neighboriq.storage.market_db import MarketDB
+    db = MarketDB()
+    if not db.neighborhood_exists(zip_code):
+        raise HTTPException(status_code=404, detail=f"No data for {zip_code}. Run analyze first.")
+    opps = db.get_opportunities(zip_code, min_tier=min_tier)
+    return {"zip_code": zip_code, "opportunities": opps, "count": len(opps)}
+
+
+@app.get("/businesses/{zip_code}")
+async def get_businesses(zip_code: str) -> dict:
+    """Return indexed businesses for a zip code."""
+    from neighboriq.storage.market_db import MarketDB
+    db = MarketDB()
+    neighborhood = db.get_neighborhood(zip_code)
+    if not neighborhood:
+        raise HTTPException(status_code=404, detail=f"No data for {zip_code}. Run analyze first.")
+    businesses = db.get_businesses(neighborhood["id"])
+    return {"zip_code": zip_code, "businesses": businesses, "count": len(businesses)}
+
+
+@app.get("/content/{zip_code}/{niche}")
+async def get_content(zip_code: str, niche: str) -> dict:
+    """Return generated YouTube script for a zip/niche pair."""
+    content_path = ROOT / "data" / "content" / f"{zip_code}_{niche}.json"
+    if not content_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"No content for {zip_code}/{niche}. Run: neighboriq content --zip {zip_code} --niche {niche}",
+        )
+    data = json.loads(content_path.read_text(encoding="utf-8"))
+    return {"zip_code": zip_code, "niche": niche, "script": data}
+
+
+@app.get("/analyze/{zip_code}")
+async def analyze_get(zip_code: str, radius_mi: float = 1.5, run_llm: bool = False) -> dict:
+    """Trigger full analysis pipeline for a zip code."""
+    return await _run_analysis(zip_code, radius_mi=radius_mi, run_llm=run_llm)
+
+
+@app.post("/analyze")
+async def analyze_post(req: AnalyzeRequest) -> dict:
+    """Trigger full analysis pipeline with configurable options."""
+    return await _run_analysis(req.zip_code, radius_mi=req.radius_mi, run_llm=req.run_llm)
+
+
+async def _run_analysis(zip_code: str, radius_mi: float, run_llm: bool) -> dict:
+    from neighboriq.cli import _run_pipeline
+    try:
+        result = _run_pipeline(zip_code, radius_mi=radius_mi, run_llm=run_llm)
+        return {
+            "zip_code": zip_code,
+            "demographics": result["demographics"],
+            "opportunities": result["opportunities"],
+            "opportunity_count": len(result["opportunities"]),
+            "llm_analysis": result.get("llm_analysis", {}),
+        }
+    except Exception as exc:
+        log.error("Analysis failed for %s: %s", zip_code, exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))

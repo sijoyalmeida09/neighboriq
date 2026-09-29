@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neighboriq"
+version = "0.1.0"
+description = "Neighborhood business intelligence engine — find underserved niches from real-time data"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+keywords = ["business-intelligence", "neighborhood-analysis", "market-research", "local-business"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "requests>=2.31",
+    "playwright>=1.40",
+    "pytrends>=4.9",
+    "census>=0.8",
+    "vaderSentiment>=3.3",
+    "Pillow>=10.0",
+    "groq>=0.4",
+    "anthropic>=0.20",
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "weasyprint>=60.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "black>=24.0",
+    "ruff>=0.3",
+    "mypy>=1.9",
+]
+
+[project.scripts]
+neighboriq = "neighboriq.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/joshoit/neighboriq"
+Repository = "https://github.com/joshoit/neighboriq"
+"Bug Tracker" = "https://github.com/joshoit/neighboriq/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.black]
+line-length = 100
