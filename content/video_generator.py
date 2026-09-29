@@ -47,10 +47,52 @@ def _display_niche(niche: str) -> str:
     return _NICHE_DISPLAY.get(niche, niche.replace("_", " ").title())
 
 
-def _revenue_estimate(demographics: dict) -> int:
-    population = demographics.get("population", 20000)
-    median_income = demographics.get("median_income", 60000)
-    return int(median_income * 0.02 * population / 10000)
+def _revenue_estimate(niche: str, demographics: dict) -> int:
+    try:
+        from neighboriq.scoring.revenue_model import get_revenue_model
+        m = get_revenue_model(niche, demographics)
+        return m.revenue_median * 12
+    except Exception:
+        population = demographics.get("population", 20000)
+        median_income = demographics.get("median_income", 60000)
+        return int(median_income * 0.02 * population / 10000)
+
+
+def _build_entry_section(
+    zip_code: str, niche: str, niche_display: str,
+    opportunity_data: dict, llm_analysis: dict,
+) -> str:
+    try:
+        from neighboriq.scoring.revenue_model import get_revenue_model
+        from neighboriq.scoring.automation_matrix import get_automation_blueprint
+        m = get_revenue_model(niche, {})
+        b = get_automation_blueprint(niche)
+        return (
+            f"So how do you actually open a {niche_display} here? "
+            f"Three entry tiers. "
+            f"Home-based: ${m.startup_home_based:,} — {m.model_solo_description} "
+            f"Small footprint: ${m.startup_small:,} — payback in {m.payback_solo_months} months solo "
+            f"or {m.payback_1staff_months} months with one employee. "
+            f"Full storefront: ${m.startup_full:,} — the institutional play. "
+            f"At median revenue of ${m.revenue_median:,}/month, your net solo is "
+            f"{m.net_margin_solo_pct:.0f}% — that's ${int(m.revenue_median * m.net_margin_solo_pct / 100):,}/month. "
+            f"Now here's the automation play: {b.staff_with_automation}. "
+            f"Automate {', '.join(list(b.automated_tasks)[:3])} — saves ${b.monthly_savings_usd:,}/month. "
+            f"Tools: {', '.join(t['tool'] for t in list(b.recommended_tools)[:3])}. "
+            f"Most of them are free or under $50/month. "
+            f"Low-to-high margin path: {m.escalation_path[:200]}. "
+            f"{llm_analysis.get('entry_strategy', '')}"
+        )
+    except Exception:
+        capital = opportunity_data.get("typical_capital_req", 150000)
+        return (
+            f"So how do you actually open a {niche_display} here? "
+            f"Startup capital: ${capital:,}. "
+            f"Days 1-30: secure the space and permits. "
+            f"Days 31-60: build out and hire 1-2 staff. "
+            f"Days 61-90: soft launch, focus on {zip_code} delivery radius first. "
+            f"{llm_analysis.get('entry_strategy', '')}"
+        )
 
 
 def _build_template_script(
@@ -70,7 +112,7 @@ def _build_template_script(
     avg_rating = competitor_analysis.get("avg_rating", 3.5)
     population = demographics.get("population", 20000)
     median_income = demographics.get("median_income", 60000)
-    revenue_est = _revenue_estimate(demographics)
+    revenue_est = _revenue_estimate(niche, demographics)
 
     total_restaurants = competitor_analysis.get("total_businesses_nearby", competitor_count * 8)
     title = (
@@ -126,17 +168,7 @@ def _build_template_script(
         },
         {
             "title": "Section 3 — The Entry (5:00–8:00)",
-            "script": (
-                f"So how do you actually open a {niche_display} here? "
-                f"Typical startup capital: ${opportunity_data.get('typical_capital_req', 150000):,}. "
-                f"But you don't need all of it on day one. Here's a 90-day plan: "
-                f"Days 1–30: secure a lease on a vacant food-service space — there are always "
-                f"former restaurant shells available in a neighborhood this size. "
-                f"Days 31–60: build out, get permits, hire 2–3 staff. "
-                f"Days 61–90: soft launch, focus on {zip_code} zip code delivery first. "
-                f"Your first customers are already searching for you — they just can't find anyone. "
-                f"{llm_analysis.get('entry_strategy', 'Focus on authentic quality and delivery radius.')}"
-            ),
+            "script": _build_entry_section(zip_code, niche, niche_display, opportunity_data, llm_analysis),
             "visuals": [
                 "90-day Gantt chart",
                 "Startup cost breakdown table",
@@ -247,7 +279,7 @@ def _build_llm_script(
         import requests  # type: ignore
 
         niche_display = _display_niche(niche)
-        revenue_est = _revenue_estimate(demographics)
+        revenue_est = _revenue_estimate(niche, demographics)
 
         prompt = {
             "role": "user",
@@ -321,6 +353,18 @@ def generate_script(
         )
     log.info("Generated script for %s / %s: %s", zip_code, niche, result["title"])
     return result
+
+
+def generate_video_script(zip_code: str, niche: str, opportunity_data: dict) -> dict:
+    """Compatibility wrapper used by cli.py run/content commands."""
+    demographics = opportunity_data.get("demographics", {})
+    competitor_analysis = {
+        "avg_rating": opportunity_data.get("competitor_avg_rating", 3.5),
+        "total_businesses_nearby": opportunity_data.get("competitor_count", 0) * 8,
+    }
+    city = opportunity_data.get("city", zip_code)
+    llm_analysis = opportunity_data.get("llm_analysis", {})
+    return generate_script(zip_code, city, niche, opportunity_data, demographics, competitor_analysis, llm_analysis)
 
 
 def save_script(zip_code: str, niche: str, script: dict) -> Path:

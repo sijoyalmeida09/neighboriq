@@ -32,3 +32,8 @@ playwright-report/
 .vscode/
 .idea/
 *.swp
+
+logs/
+data/market.db
+data/content/
+*.pid

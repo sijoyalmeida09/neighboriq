@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "NeighborIQ",
+  "version": "1.0.0",
+  "description": "Neighborhood business intelligence — spot underserved niches instantly",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["http://localhost:8000/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/maps/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

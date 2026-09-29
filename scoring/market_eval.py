@@ -12,20 +12,29 @@ import re
 
 log = logging.getLogger("market_eval")
 
-_SYSTEM = """You are a top business analyst specializing in neighborhood market intelligence.
-You analyze demographic data, competitor density, and demand signals to identify underserved business niches.
-Your goal: find the ONE specific type of business that has the highest probability of success in this neighborhood.
-Always respond in valid JSON only."""
+_SYSTEM = """You are a top-tier small business intelligence analyst with 20 years of experience opening businesses in underserved urban neighborhoods. You have opened barbershops in Dorchester, laundromats in Mattapan, halal restaurants in Queens, and convenience stores in South Boston. You give SPECIFIC dollar figures, not ranges. You name exact tools, vendors, and suppliers. You identify exact revenue per unit. You never say "varies" — you give your best estimate with a confidence flag. Respond in valid JSON only."""
 
 _RESPONSE_SCHEMA = """{
-  "market_summary": "2-sentence description of this neighborhood's character and opportunity",
+  "market_summary": "2-sentence character read of this neighborhood — who lives here, what they spend money on",
   "top_opportunities": [
-    {"niche": "niche_name", "score": 0-100, "reasoning": "Why this niche will succeed here in 1 sentence"},
-    {"niche": "niche_name", "score": 0-100, "reasoning": "..."},
-    {"niche": "niche_name", "score": 0-100, "reasoning": "..."}
+    {
+      "niche": "niche_name",
+      "score": 0,
+      "why_here": "One sentence: what specific demographic or gap makes this niche work HERE",
+      "monthly_revenue_estimate": 12000,
+      "net_margin_pct": 35,
+      "monthly_net_income": 4200,
+      "startup_cost_minimum": 30000,
+      "payback_months": 7,
+      "first_customer_in_days": 14,
+      "automation_stack": ["Calendly for booking", "Square POS", "Twilio review requests"],
+      "staff_needed": "1 owner-operator, no employees year 1",
+      "biggest_risk": "One sentence: the #1 thing that kills this business here"
+    }
   ],
-  "critical_risks": ["Risk 1", "Risk 2", "Risk 3"],
-  "entry_strategy": "Specific 90-day entry plan: what to open, how much capital, first 3 actions"
+  "immediate_action": "The ONE thing to do in the next 7 days to validate the top opportunity before spending any money",
+  "asset_needed_for_top": "The single most important asset/license/skill to acquire first",
+  "neighborhood_insider_edge": "What cultural or community knowledge gives an insider a 2x advantage here"
 }"""
 
 
@@ -79,27 +88,46 @@ def _template_fallback(demographics: dict, top_opportunities: list[dict]) -> dic
     pop = demographics.get("population", 0)
     income = demographics.get("median_income", 0)
     top3 = top_opportunities[:3]
+
+    def _opp_to_template(o: dict) -> dict:
+        niche = o.get("niche", "unknown")
+        score = o.get("opportunity_score", o.get("score", 0))
+        capital = o.get("typical_capital_req", 80_000)
+        demand = o.get("demand_score", 50)
+        sat = o.get("saturation_ratio", 1.0)
+        gap_label = "undersupplied" if sat < 0.8 else ("at capacity" if sat < 1.5 else "oversupplied")
+        return {
+            "niche": niche,
+            "score": score,
+            "why_here": (
+                f"Data model shows {gap_label} supply (ratio {sat:.2f}x benchmark) "
+                f"with demand score {demand}/100 for {niche.replace('_', ' ')} in this zip."
+            ),
+            "monthly_revenue_estimate": max(8_000, int(income * 0.15)),
+            "net_margin_pct": 28,
+            "monthly_net_income": max(2_000, int(income * 0.04)),
+            "startup_cost_minimum": capital,
+            "payback_months": max(6, capital // max(1, int(income * 0.04))),
+            "first_customer_in_days": 21,
+            "automation_stack": ["Square POS (free)", "Calendly free tier", "Google Business Profile"],
+            "staff_needed": "1 owner-operator, no employees year 1",
+            "biggest_risk": "Insufficient foot traffic — validate location with 30-day pop-up before signing lease.",
+        }
+
     return {
         "market_summary": (
             f"Neighborhood with {pop:,} residents and median income ${income:,}. "
-            "Data-driven analysis identifies supply-demand gaps in key business categories."
+            "Data model identifies supply-demand gaps — LLM analysis unavailable, using computed fallback."
         ),
-        "top_opportunities": [
-            {
-                "niche": o.get("niche", ""),
-                "score": o.get("score", 0),
-                "reasoning": "Data model detected undersupply relative to demand and national benchmarks.",
-            }
-            for o in top3
-        ],
-        "critical_risks": [
-            "Market data may be incomplete or stale.",
-            "Local zoning and permit requirements not analyzed.",
-            "Competitor landscape may have changed since scrape.",
-        ],
-        "entry_strategy": (
-            "Validate the top-scored niche with a soft launch or pop-up before committing capital. "
-            "Survey 20 residents in the zip code, then lease a small footprint for 6 months."
+        "top_opportunities": [_opp_to_template(o) for o in top3],
+        "immediate_action": (
+            "Spend 2 hours walking the zip code at 10am and 6pm on a weekday. "
+            "Count foot traffic at the top-scored niche's closest competitor."
+        ),
+        "asset_needed_for_top": "Local business license + $500 deposit on a shared/sublease space to test demand.",
+        "neighborhood_insider_edge": (
+            "Know the dominant community language and cultural buying patterns — "
+            "insider referrals from a community anchor (mosque, church, community center) cut CAC to near zero."
         ),
         "source": "template_fallback",
     }
@@ -107,10 +135,10 @@ def _template_fallback(demographics: dict, top_opportunities: list[dict]) -> dic
 
 def evaluate_neighborhood(
     zip_code: str,
-    city: str,
     demographics: dict,
     top_opportunities: list[dict],
-    businesses: list[dict],
+    businesses: list[dict] | None = None,
+    city: str = "",
 ) -> dict:
     """
     Returns dict with keys:
@@ -119,24 +147,47 @@ def evaluate_neighborhood(
     pop = demographics.get("population", 0)
     income = demographics.get("median_income", 0)
     age = demographics.get("age_median", 0)
+    biz_list: list[dict] = businesses or []
 
-    niche_sample = [b.get("niche", "unknown") for b in businesses[:30]]
+    # Build competitor snapshot: top 5 rated + bottom 5 rated per top niche
+    top_niche = top_opportunities[0].get("niche", "") if top_opportunities else ""
+    niche_biz = [b for b in biz_list if b.get("niche") == top_niche][:10]
+    competitor_lines = [
+        f"{b.get('name','?')} ⭐{b.get('rating', 0):.1f} ({b.get('review_count', 0)} reviews)"
+        for b in sorted(niche_biz, key=lambda x: x.get("rating", 0), reverse=True)[:5]
+    ]
+    competitor_str = "\n".join(competitor_lines) if competitor_lines else "No competitors found in DB"
 
-    prompt = f"""Analyze this neighborhood and identify the best business opportunity:
+    # Saturation signal for top opportunity
+    if top_opportunities:
+        top = top_opportunities[0]
+        sat_ratio = top.get("saturation_ratio", 1.0)
+        count = top.get("competitor_count", 0)
+        sat_signal = f"{count} {top_niche.replace('_',' ')}s for {pop:,} residents = {sat_ratio:.2f}x national benchmark"
+    else:
+        sat_signal = "No saturation data available"
+
+    prompt = f"""Analyze this neighborhood and identify the BEST specific business to open here. Give EXACT dollar figures — no ranges, no "varies".
 
 ZIP Code: {zip_code}
-City: {city}
+City/State: {demographics.get('city', '')} {demographics.get('state', '')}
 
 Demographics:
 - Population: {pop:,}
-- Median Income: ${income:,}
+- Median Household Income: ${income:,}/yr
 - Median Age: {age}
+- Growth Rate (5yr): {demographics.get('growth_rate_5yr', 0):.1f}%
 
-Top Scored Opportunities (by our data model):
+Market Gap Signal (top niche):
+{sat_signal}
+
+Top Existing Competitors in top niche:
+{competitor_str}
+
+Top Scored Opportunities (by supply/demand/sentiment model):
 {json.dumps(top_opportunities[:5], indent=2)}
 
-Existing Business Sample ({len(businesses)} total scraped):
-{json.dumps(niche_sample, indent=2)}
+Total businesses scraped in this zip: {len(biz_list)}
 
 Respond with ONLY this JSON structure:
 {_RESPONSE_SCHEMA}"""

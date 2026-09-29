@@ -24,7 +24,8 @@ from typing import Any
 try:
     from fastapi import FastAPI, HTTPException, Request
     from fastapi.middleware.cors import CORSMiddleware
-    from fastapi.responses import JSONResponse
+    from fastapi.responses import JSONResponse, FileResponse
+    from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel
 except ImportError:
     print("FastAPI not installed. Run: pip install fastapi uvicorn")
@@ -33,11 +34,12 @@ except ImportError:
 log = logging.getLogger("neighboriq.api")
 
 ROOT = Path(__file__).resolve().parent.parent
+DASHBOARD_DIR = ROOT / "dashboard"
 
 app = FastAPI(
     title="NeighborIQ API",
     description="Neighborhood business intelligence — underserved niche detection",
-    version="0.1.0",
+    version="0.2.0",
 )
 
 app.add_middleware(
@@ -87,9 +89,17 @@ class AnalyzeRequest(BaseModel):
 
 # ── endpoints ─────────────────────────────────────────────────────────────────
 
+@app.get("/")
+async def dashboard_root() -> FileResponse | JSONResponse:
+    index = DASHBOARD_DIR / "index.html"
+    if index.exists():
+        return FileResponse(str(index))
+    return JSONResponse({"message": "NeighborIQ API — visit /docs for Swagger UI", "version": "0.2.0"})
+
+
 @app.get("/health")
 async def health() -> dict:
-    return {"status": "ok", "version": "0.1.0"}
+    return {"status": "ok", "version": "0.2.0"}
 
 
 @app.get("/opportunities/{zip_code}")
@@ -154,3 +164,90 @@ async def _run_analysis(zip_code: str, radius_mi: float, run_llm: bool) -> dict:
     except Exception as exc:
         log.error("Analysis failed for %s: %s", zip_code, exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── Revenue model & automation ────────────────────────────────────────────────
+
+@app.get("/revenue-model/{niche}")
+async def get_revenue_model_endpoint(niche: str, zip_code: str = "") -> dict:
+    """Return full revenue model + automation blueprint for a niche."""
+    try:
+        import dataclasses
+        from neighboriq.scoring.revenue_model import get_revenue_model, format_revenue_model
+        from neighboriq.scoring.automation_matrix import get_automation_blueprint, format_automation_blueprint
+        demographics: dict = {}
+        if zip_code:
+            from neighboriq.storage.market_db import MarketDB
+            db = MarketDB()
+            hood = db.get_neighborhood(zip_code)
+            if hood:
+                demographics = {"median_income": hood.get("median_income", 0)}
+        m = get_revenue_model(niche, demographics)
+        b = get_automation_blueprint(niche)
+        return {
+            "niche": niche,
+            "revenue_model": dataclasses.asdict(m),
+            "automation_blueprint": dataclasses.asdict(b),
+            "formatted_revenue": format_revenue_model(m),
+            "formatted_automation": format_automation_blueprint(b),
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── Asset filter ──────────────────────────────────────────────────────────────
+
+class AssetFilterRequest(BaseModel):
+    zip_code: str
+    capital_usd: int = 50_000
+    space_sqft: int = 0
+    has_vehicle: bool = False
+    skills: list[str] = []
+    licenses: list[str] = []
+    monthly_overhead_max: int = 5_000
+    prefers_home_based: bool = False
+    hours_per_week: int = 40
+    top_n: int = 10
+
+
+@app.post("/asset-filter")
+async def asset_filter(req: AssetFilterRequest) -> dict:
+    """Filter neighborhood opportunities by operator's available assets."""
+    try:
+        import dataclasses
+        from neighboriq.analyzers.asset_mapper import filter_by_assets, AssetProfile
+        from neighboriq.storage.market_db import MarketDB
+        db = MarketDB()
+        if not db.neighborhood_exists(req.zip_code):
+            raise HTTPException(
+                status_code=404,
+                detail=f"No data for {req.zip_code}. Run /analyze/{req.zip_code} first.",
+            )
+        opps = db.get_opportunities(req.zip_code, min_tier="C")
+        profile = AssetProfile(
+            capital_usd=req.capital_usd,
+            space_sqft=req.space_sqft,
+            has_vehicle=req.has_vehicle,
+            skills=tuple(req.skills),
+            licenses=tuple(req.licenses),
+            existing_customers=0,
+            monthly_overhead_max=req.monthly_overhead_max,
+            prefers_home_based=req.prefers_home_based,
+            hours_per_week=req.hours_per_week,
+        )
+        results = filter_by_assets(opps, profile, top_n=req.top_n)
+        return {
+            "zip_code": req.zip_code,
+            "results": [dataclasses.asdict(r) for r in results],
+            "count": len(results),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── Static dashboard ──────────────────────────────────────────────────────────
+
+if DASHBOARD_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(DASHBOARD_DIR)), name="static")

@@ -201,7 +201,7 @@ def _run_pipeline(
     if run_llm:
         try:
             from neighboriq.scoring.market_eval import evaluate_neighborhood
-            llm_analysis = evaluate_neighborhood(zip_code, demographics, opportunities[:5])
+            llm_analysis = evaluate_neighborhood(zip_code, demographics, opportunities[:5], businesses=businesses[:50])
         except Exception as exc:
             log.warning("LLM eval skipped: %s", exc)
 
@@ -267,6 +267,13 @@ def _cmd_analyze(args: argparse.Namespace) -> None:
         print("No opportunities found. Try increasing --radius or checking data sources.")
         return
 
+    from neighboriq.display import (
+        print_opportunity_table,
+        print_full_analysis,
+        print_asset_filter,
+        print_llm_analysis,
+    )
+
     if args.output == "json":
         print(json.dumps(result["opportunities"], indent=2))
     elif args.output == "report":
@@ -276,17 +283,27 @@ def _cmd_analyze(args: argparse.Namespace) -> None:
             print(f"Report saved: {path}")
         except Exception as exc:
             log.warning("Report generation failed: %s", exc)
-            _print_opportunities(opportunities)
+            print_opportunity_table(opportunities)
+    elif getattr(args, "depth", "table") == "full":
+        print_full_analysis(opportunities, result["demographics"])
     else:
-        _print_opportunities(opportunities)
+        print_opportunity_table(opportunities)
 
-    if result.get("llm_analysis"):
-        la = result["llm_analysis"]
-        if isinstance(la, dict) and la.get("entry_strategy"):
-            print("LLM ENTRY STRATEGY")
-            print("━" * 52)
-            print(la["entry_strategy"])
-            print()
+    # Asset filter — works with any output/depth mode
+    if getattr(args, "assets", None):
+        try:
+            import json as _json
+            asset_dict = _json.loads(args.assets)
+            asset_dict.setdefault("zip_code", zip_code)
+            from neighboriq.analyzers.asset_mapper import filter_by_assets, parse_asset_profile_from_dict
+            profile = parse_asset_profile_from_dict(asset_dict)
+            feasibility = filter_by_assets(opportunities, profile, top_n=5)
+            print_asset_filter(feasibility)
+        except Exception as exc:
+            log.warning("Asset filter failed: %s", exc)
+
+    if result.get("llm_analysis") and getattr(args, "depth", "table") != "full":
+        print_llm_analysis(result["llm_analysis"])
 
 
 def _cmd_compare(args: argparse.Namespace) -> None:
@@ -400,6 +417,22 @@ def _post_to_telegram(zip_code: str, opportunities: list[dict]) -> None:
         log.warning("Telegram post failed: %s", resp.text)
 
 
+def _cmd_analyze_business(args: argparse.Namespace) -> None:
+    url = args.url
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    print(f"NeighborIQ — Analyzing business at {url}...")
+    print()
+    try:
+        from neighboriq.analyzers.domain_analyzer import analyze_domain, format_domain_analysis
+        analysis = analyze_domain(url)
+        print(format_domain_analysis(analysis))
+    except ImportError as exc:
+        log.error("domain_analyzer not available: %s", exc)
+    except Exception as exc:
+        log.error("Business analysis failed: %s", exc, exc_info=True)
+
+
 def _cmd_stats(args: argparse.Namespace) -> None:
     from storage.market_db import MarketDB
     db = MarketDB()
@@ -435,6 +468,17 @@ def main() -> None:
         default="table",
         help="Output format (default: table)",
     )
+    p_analyze.add_argument(
+        "--depth",
+        choices=["table", "full"],
+        default="table",
+        help="Analysis depth: table=quick scores, full=P&L + automation + staffing (default: table)",
+    )
+    p_analyze.add_argument(
+        "--assets",
+        default=None,
+        help='JSON of owner assets, e.g. \'{"capital_usd":20000,"skills":["hair_cutting"],"has_vehicle":true}\'',
+    )
 
     # compare
     p_compare = sub.add_parser("compare", help="Compare multiple zip codes")
@@ -453,6 +497,11 @@ def main() -> None:
     # stats
     sub.add_parser("stats", help="Show database statistics")
 
+    # analyze-business
+    p_biz = sub.add_parser("analyze-business", help="Audit any business website for revenue gaps")
+    p_biz.add_argument("--url", required=True, help="Business website URL")
+    p_biz.add_argument("--zip", default="", help="Override zip code if page detection fails")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -461,6 +510,7 @@ def main() -> None:
         "content": _cmd_content,
         "run": _cmd_run,
         "stats": _cmd_stats,
+        "analyze-business": _cmd_analyze_business,
     }
     try:
         dispatch[args.command](args)

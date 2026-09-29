@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeighborIQ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    width: 360px;
+    min-height: 200px;
+    padding: 12px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #3fb950;
+    letter-spacing: -0.3px;
+  }
+  .header .badge {
+    font-size: 10px;
+    background: #1f2937;
+    color: #6b7280;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .search-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    flex: 1;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-size: 13px;
+    padding: 6px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-row input:focus { border-color: #3fb950; }
+  .search-row input::placeholder { color: #484f58; }
+  .btn {
+    background: #238636;
+    border: 1px solid #2ea043;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #2ea043; }
+  .btn:active { background: #196c2e; }
+  .btn.secondary {
+    background: #21262d;
+    border-color: #30363d;
+    color: #c9d1d9;
+    width: 100%;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .btn.secondary:hover { background: #30363d; }
+  .meta {
+    font-size: 11px;
+    color: #8b949e;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #21262d;
+  }
+  .opp-list { display: flex; flex-direction: column; gap: 6px; }
+  .opp-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .opp-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .tier-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .tier-A { background: #1a4731; color: #3fb950; border: 1px solid #2ea043; }
+  .tier-B { background: #3a2e1a; color: #d29922; border: 1px solid #9e6a03; }
+  .tier-C { background: #3d2222; color: #f85149; border: 1px solid #f85149; }
+  .opp-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e6edf3;
+    flex: 1;
+  }
+  .opp-score {
+    font-size: 12px;
+    font-weight: 700;
+    color: #3fb950;
+    min-width: 28px;
+    text-align: right;
+  }
+  .score-bar-wrap {
+    background: #0d1117;
+    border-radius: 2px;
+    height: 4px;
+    margin-bottom: 5px;
+    overflow: hidden;
+  }
+  .score-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #238636, #3fb950);
+  }
+  .opp-meta {
+    font-size: 10px;
+    color: #8b949e;
+    display: flex;
+    gap: 10px;
+  }
+  .opp-meta span { display: flex; align-items: center; gap: 3px; }
+  .spinner {
+    text-align: center;
+    padding: 20px;
+    color: #8b949e;
+    font-size: 13px;
+  }
+  .spinner::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #30363d;
+    border-top-color: #3fb950;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error {
+    background: #3d1a1a;
+    border: 1px solid #f85149;
+    border-radius: 8px;
+    color: #f85149;
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 10px;
+    margin-top: 4px;
+  }
+  .error code {
+    display: block;
+    margin-top: 4px;
+    color: #8b949e;
+    font-family: monospace;
+    font-size: 10px;
+    word-break: break-all;
+  }
+  .empty {
+    text-align: center;
+    color: #484f58;
+    font-size: 12px;
+    padding: 20px 0;
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>NeighborIQ</h1>
+  <span class="badge">v1.0</span>
+</div>
+
+<div class="search-row">
+  <input type="text" id="zipInput" placeholder="ZIP code (e.g. 02122)" maxlength="10" />
+  <button class="btn" id="analyzeBtn">Analyze</button>
+</div>
+
+<div id="metaRow" class="meta" style="display:none;"></div>
+<div id="content"></div>
+
+<button class="btn secondary" id="dashboardBtn">Open Full Dashboard →</button>
+
+<script src="popup.js"></script>
+</body>
+</html>

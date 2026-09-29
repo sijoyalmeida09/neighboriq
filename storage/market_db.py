@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS opportunities (
     pattern_confidence REAL DEFAULT 0.0,
     llm_analysis TEXT DEFAULT '',
     tier TEXT DEFAULT 'C',
+    typical_capital_req INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now')),
     UNIQUE(neighborhood_id, niche),
     FOREIGN KEY (neighborhood_id) REFERENCES neighborhoods(id)
@@ -123,6 +124,13 @@ class MarketDB:
     def _init_schema(self) -> None:
         with self._conn() as conn:
             conn.executescript(SCHEMA)
+            # Migrate existing DBs that predate typical_capital_req column
+            try:
+                conn.execute("ALTER TABLE opportunities ADD COLUMN typical_capital_req INTEGER DEFAULT 0")
+                conn.commit()
+                log.debug("Migrated opportunities table: added typical_capital_req")
+            except Exception:
+                pass  # column already exists
         log.debug("market_db schema initialized at %s", self._path)
 
     # ── neighborhoods ──────────────────────────────────────────────────────
@@ -237,7 +245,7 @@ class MarketDB:
         allowed = {
             "parent_category", "opportunity_score", "saturation_ratio",
             "demand_score", "competitor_avg_rating", "competitor_count",
-            "pattern_confidence", "llm_analysis", "tier",
+            "pattern_confidence", "llm_analysis", "tier", "typical_capital_req",
         }
         safe = {k: v for k, v in fields.items() if k in allowed}
         safe.setdefault("tier", "C")

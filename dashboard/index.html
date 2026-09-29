@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeighborIQ — Neighborhood Business Intelligence</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --green: #3fb950; --yellow: #d29922; --red: #f85149; --blue: #58a6ff;
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Header */
+  .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header-brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--text); }
+  .header-brand span { color: var(--green); }
+  .compare-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .compare-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* Main layout */
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  .compare-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 768px) { .compare-layout { grid-template-columns: 1fr; } }
+
+  /* Search bar */
+  .search-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .search-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .zip-input { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 15px; font-family: var(--font-mono); padding: 9px 14px; flex: 1; min-width: 140px; max-width: 220px; outline: none; transition: border-color .2s; }
+  .zip-input:focus { border-color: var(--blue); }
+  .analyze-btn { background: var(--green); border: none; border-radius: 6px; color: #0d1117; font-weight: 700; padding: 9px 20px; cursor: pointer; font-size: 14px; white-space: nowrap; }
+  .analyze-btn:hover { opacity: .9; }
+  .analyze-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .checkbox-label { display: flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; font-size: 13px; white-space: nowrap; }
+  .checkbox-label input { accent-color: var(--green); width: 15px; height: 15px; }
+
+  /* Assets expander */
+  .assets-toggle { background: none; border: none; color: var(--blue); cursor: pointer; font-size: 12px; padding: 8px 0 0; display: block; }
+  .assets-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .assets-panel.open { display: block; }
+  .assets-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .asset-input { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 7px 10px; font-size: 13px; outline: none; width: 130px; }
+  .asset-input:focus { border-color: var(--blue); }
+  .filter-btn { background: var(--card); border: 1px solid var(--green); color: var(--green); border-radius: 6px; padding: 7px 16px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .filter-btn:hover { background: rgba(63,185,80,.1); }
+  .checkbox-asset { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 13px; }
+
+  /* Demo card */
+  .demo-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  .demo-stat { display: flex; flex-direction: column; }
+  .demo-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .demo-value { font-size: 17px; font-family: var(--font-mono); font-weight: 700; color: var(--text); }
+  .demo-divider { width: 1px; background: var(--border); height: 36px; }
+  .demo-zip { font-size: 20px; font-weight: 800; color: var(--blue); font-family: var(--font-mono); }
+
+  /* Opportunities */
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+  .opp-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .opp-header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .tier-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); }
+  .tier-A { background: rgba(63,185,80,.18); color: var(--green); border: 1px solid var(--green); }
+  .tier-B { background: rgba(210,153,34,.18); color: var(--yellow); border: 1px solid var(--yellow); }
+  .tier-C { background: rgba(139,148,158,.12); color: var(--muted); border: 1px solid var(--border); }
+  .opp-rank { font-size: 13px; color: var(--muted); font-family: var(--font-mono); min-width: 24px; }
+  .opp-name { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; flex: 1; min-width: 160px; }
+  .opp-score { font-family: var(--font-mono); font-size: 14px; color: var(--text); white-space: nowrap; }
+  .opp-meta { padding: 0 20px 12px; color: var(--muted); font-size: 13px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .opp-meta span { white-space: nowrap; }
+  .pl-toggle { background: none; border: 1px solid var(--border); color: var(--blue); border-radius: 5px; padding: 4px 10px; font-size: 12px; cursor: pointer; margin: 0 20px 14px; }
+  .pl-toggle:hover { border-color: var(--blue); background: rgba(88,166,255,.08); }
+
+  /* P&L panel */
+  .pl-panel { display: none; border-top: 1px solid var(--border); padding: 18px 20px; background: rgba(0,0,0,.2); }
+  .pl-panel.open { display: block; }
+  .pl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 14px; }
+  .pl-block { display: flex; flex-direction: column; gap: 6px; }
+  .pl-block-title { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 600; }
+  .pl-row { display: flex; justify-content: space-between; font-size: 13px; }
+  .pl-key { color: var(--muted); }
+  .pl-val { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
+  .pl-val.green { color: var(--green); }
+  .pl-val.yellow { color: var(--yellow); }
+  .pl-tools { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .pl-tools strong { color: var(--text); }
+  .pl-path { font-size: 12px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); line-height: 1.6; }
+  .pl-path strong { color: var(--yellow); }
+  .loading-pl { color: var(--muted); font-size: 13px; font-style: italic; }
+
+  /* Feasibility overlay */
+  .feas-badge { font-size: 11px; font-family: var(--font-mono); padding: 2px 7px; border-radius: 4px; background: rgba(88,166,255,.12); color: var(--blue); border: 1px solid rgba(88,166,255,.3); white-space: nowrap; }
+  .feas-detail { padding: 0 20px 14px; font-size: 12px; color: var(--muted); }
+  .feas-detail .tag { display: inline-block; background: rgba(63,185,80,.1); color: var(--green); border-radius: 3px; padding: 1px 6px; margin: 2px; font-size: 11px; }
+  .feas-detail .tag.need { background: rgba(248,81,73,.08); color: var(--red); }
+
+  /* Compare */
+  .compare-col .section-title { color: var(--blue); }
+
+  /* Spinner */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status { color: var(--muted); font-size: 13px; padding: 12px 0; }
+
+  /* Error */
+  .error-card { background: rgba(248,81,73,.08); border: 1px solid var(--red); border-radius: 8px; padding: 14px 18px; color: var(--red); font-size: 13px; margin-bottom: 16px; }
+
+  /* Footer */
+  footer { text-align: center; padding: 40px 16px 24px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 48px 0; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <span>🏘</span> NeighborIQ <span style="color:var(--muted);font-size:13px;font-weight:400;margin-left:4px">Neighborhood Business Intelligence</span>
+  </div>
+  <button class="compare-btn" onclick="toggleCompare()">⇄ Compare ZIPs</button>
+</div>
+
+<div class="container">
+
+  <!-- Search bar -->
+  <div class="search-card">
+    <div class="search-row">
+      <input class="zip-input" id="zip1" type="text" placeholder="ZIP code (e.g. 02122)" maxlength="10" onkeydown="if(event.key==='Enter')analyze()">
+      <input class="zip-input" id="zip2" type="text" placeholder="ZIP 2 (compare)" maxlength="10" style="display:none" onkeydown="if(event.key==='Enter')analyze()">
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">Analyze</button>
+      <label class="checkbox-label">
+        <input type="checkbox" id="fullPL"> Full P&amp;L
+      </label>
+    </div>
+
+    <button class="assets-toggle" onclick="toggleAssets()">▸ Assets filter (optional — filter by what you have)</button>
+    <div class="assets-panel" id="assetsPanel">
+      <div class="assets-row">
+        <div class="field-group">
+          <span class="field-label">Capital ($)</span>
+          <input class="asset-input" id="aCapital" type="number" placeholder="50000" min="0">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Skills (comma-sep)</span>
+          <input class="asset-input" id="aSkills" type="text" placeholder="cooking, barber" style="width:180px">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Space (sqft)</span>
+          <input class="asset-input" id="aSpace" type="number" placeholder="0" min="0">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Max monthly OH ($)</span>
+          <input class="asset-input" id="aOverhead" type="number" placeholder="5000" min="0">
+        </div>
+        <label class="checkbox-asset">
+          <input type="checkbox" id="aVehicle"> Vehicle
+        </label>
+        <label class="checkbox-asset">
+          <input type="checkbox" id="aHomeBased"> Prefer home-based
+        </label>
+        <button class="filter-btn" onclick="applyAssetFilter()">Filter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results area -->
+  <div id="statusMsg" class="status" style="display:none"></div>
+  <div id="errorMsg" style="display:none"></div>
+  <div id="results"></div>
+
+</div>
+
+<footer>
+  NeighborIQ — Open Source ·
+  <a href="https://github.com/sijoyalmeida09/neighboriq" target="_blank">github.com/sijoyalmeida09/neighboriq</a>
+  · MIT License
+</footer>
+
+<script>
+'use strict';
+
+let currentZip = '';
+let currentOpps = [];
+let compareMode = false;
+let plCache = {};       // niche -> revenue model data
+let feasResults = [];   // asset filter results
+
+function toggleCompare() {
+  compareMode = !compareMode;
+  const z2 = document.getElementById('zip2');
+  z2.style.display = compareMode ? '' : 'none';
+  document.querySelector('.compare-btn').textContent = compareMode ? '✕ Single ZIP' : '⇄ Compare ZIPs';
+}
+
+function toggleAssets() {
+  const panel = document.getElementById('assetsPanel');
+  const btn = document.querySelector('.assets-toggle');
+  panel.classList.toggle('open');
+  btn.textContent = panel.classList.contains('open')
+    ? '▾ Assets filter (optional — filter by what you have)'
+    : '▸ Assets filter (optional — filter by what you have)';
+}
+
+function setStatus(msg) {
+  const el = document.getElementById('statusMsg');
+  el.innerHTML = msg ? `<span class="spinner"></span>${msg}` : '';
+  el.style.display = msg ? '' : 'none';
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.innerHTML = msg ? `<div class="error-card">⚠ ${msg}</div>` : '';
+  el.style.display = msg ? '' : 'none';
+}
+
+async function analyze() {
+  const zip1 = document.getElementById('zip1').value.trim();
+  const zip2 = document.getElementById('zip2').value.trim();
+  if (!zip1) { showError('Enter a ZIP code to analyze.'); return; }
+
+  document.getElementById('results').innerHTML = '';
+  showError('');
+  feasResults = [];
+  plCache = {};
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+
+  if (compareMode && zip2) {
+    setStatus(`Analyzing ${zip1} and ${zip2}...`);
+    try {
+      const [r1, r2] = await Promise.all([fetchAnalysis(zip1), fetchAnalysis(zip2)]);
+      setStatus('');
+      renderCompare(r1, r2);
+    } catch(e) {
+      showError(e.message);
+      setStatus('');
+    }
+  } else {
+    setStatus(`Analyzing ${zip1}...`);
+    try {
+      const data = await fetchAnalysis(zip1);
+      currentZip = zip1;
+      currentOpps = data.opportunities || [];
+      setStatus('');
+      renderResults(data);
+      if (document.getElementById('fullPL').checked && currentOpps.length) {
+        await prefetchPL(currentOpps.slice(0, 5).map(o => o.niche));
+        renderResults(data);
+      }
+    } catch(e) {
+      showError(e.message);
+      setStatus('');
+    }
+  }
+  btn.disabled = false;
+}
+
+async function fetchAnalysis(zip) {
+  const resp = await fetch(`/analyze/${zip}?run_llm=false`);
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to analyze ${zip} (${resp.status})`);
+  }
+  return resp.json();
+}
+
+async function fetchPL(niche) {
+  if (plCache[niche]) return plCache[niche];
+  const resp = await fetch(`/revenue-model/${niche}`);
+  if (!resp.ok) return null;
+  const data = await resp.json();
+  plCache[niche] = data;
+  return data;
+}
+
+async function prefetchPL(niches) {
+  await Promise.all(niches.map(n => fetchPL(n)));
+}
+
+async function applyAssetFilter() {
+  if (!currentZip) { showError('Run an analysis first.'); return; }
+  const capital = parseInt(document.getElementById('aCapital').value) || 50000;
+  const skills = document.getElementById('aSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+  const space = parseInt(document.getElementById('aSpace').value) || 0;
+  const overhead = parseInt(document.getElementById('aOverhead').value) || 5000;
+  const vehicle = document.getElementById('aVehicle').checked;
+  const homeBased = document.getElementById('aHomeBased').checked;
+
+  setStatus('Filtering by your assets...');
+  showError('');
+  try {
+    const resp = await fetch('/asset-filter', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        zip_code: currentZip,
+        capital_usd: capital,
+        skills,
+        space_sqft: space,
+        monthly_overhead_max: overhead,
+        has_vehicle: vehicle,
+        prefers_home_based: homeBased,
+        top_n: 10,
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || 'Asset filter failed');
+    }
+    const data = await resp.json();
+    feasResults = data.results || [];
+    setStatus('');
+    renderFeasResults();
+  } catch(e) {
+    showError(e.message);
+    setStatus('');
+  }
+}
+
+function fmt$(n) { return n >= 1000 ? '$' + (n/1000).toFixed(0) + 'K' : '$' + n; }
+function fmtFull$(n) { return '$' + Number(n).toLocaleString(); }
+function fmtPct(n) { return n.toFixed(0) + '%'; }
+
+function tierBadge(tier) {
+  return `<span class="tier-badge tier-${tier}">${tier}</span>`;
+}
+
+function renderResults(data) {
+  const opps = data.opportunities || [];
+  const demo = data.demographics || {};
+  const zip = data.zip_code || '';
+  const city = demo.city || '';
+  const state = demo.state || '';
+  const pop = demo.population || 0;
+  const income = demo.median_income || 0;
+
+  let html = '';
+
+  // Demographics bar
+  html += `<div class="demo-card">
+    <div class="demo-zip">${zip}</div>
+    <div class="demo-divider"></div>
+    <div class="demo-stat"><span class="demo-label">Location</span><span class="demo-value" style="font-size:15px">${city}${state ? ', '+state : ''}</span></div>
+    <div class="demo-divider"></div>
+    <div class="demo-stat"><span class="demo-label">Population</span><span class="demo-value">${pop.toLocaleString()}</span></div>
+    <div class="demo-divider"></div>
+    <div class="demo-stat"><span class="demo-label">Median Income</span><span class="demo-value">${fmtFull$(income)}</span></div>
+  </div>`;
+
+  // Opportunities
+  html += `<div class="section-title">Top Opportunities — ${opps.length} found</div>`;
+
+  if (!opps.length) {
+    html += `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No opportunities found</div><div>Try a different ZIP or increase the search radius</div></div>`;
+  }
+
+  opps.forEach((opp, i) => {
+    const niche = opp.niche || '';
+    const name = niche.replace(/_/g, ' ').toUpperCase();
+    const tier = opp.tier || 'C';
+    const score = opp.opportunity_score || 0;
+    const sat = opp.saturation_ratio || 0;
+    const gap = sat > 0 ? (1/sat).toFixed(1)+'x gap' : '∞ gap';
+    const demand = opp.demand_score || 0;
+    const rating = opp.competitor_avg_rating || 0;
+    const count = opp.competitor_count || 0;
+    const capital = opp.typical_capital_req || 0;
+
+    // Feasibility overlay
+    const feas = feasResults.find(f => f.niche === niche);
+    const feasHtml = feas ? `<span class="feas-badge">Feasibility: ${feas.feasibility_score}/100</span>` : '';
+
+    // PL panel
+    const pl = plCache[niche];
+    const plPanelHtml = buildPLPanel(niche, pl);
+
+    html += `<div class="opp-card" id="card-${niche}">
+      <div class="opp-header">
+        ${tierBadge(tier)}
+        <span class="opp-rank">#${i+1}</span>
+        <span class="opp-name">${name}</span>
+        <span class="opp-score">Score: <strong>${score}</strong></span>
+        ${feasHtml}
+      </div>
+      <div class="opp-meta">
+        <span>📍 ${count} existing</span>
+        <span>⭐ ${rating > 0 ? rating.toFixed(1) : 'n/a'} avg</span>
+        <span>📈 demand ${demand}/100</span>
+        <span>📊 ${gap}</span>
+        ${capital ? `<span>💰 ~${fmt$(capital)} entry</span>` : ''}
+      </div>
+      ${feas ? renderFeasDetail(feas) : ''}
+      <button class="pl-toggle" onclick="togglePL('${niche}')">View P&amp;L ▼</button>
+      <div class="pl-panel" id="pl-${niche}">
+        ${plPanelHtml}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('results').innerHTML = html;
+}
+
+function renderFeasDetail(feas) {
+  const have = (feas.what_you_have || []).map(x => `<span class="tag">${x}</span>`).join('');
+  const need = (feas.what_you_need || []).map(x => `<span class="tag need">${x}</span>`).join('');
+  return `<div class="feas-detail">
+    <strong>Have:</strong> ${have || '<span style="color:var(--muted)">—</span>'}
+    &nbsp; <strong>Need:</strong> ${need || '<span class="tag">nothing</span>'}
+    &nbsp; Entry: <strong>${feas.recommended_entry_tier || '—'}</strong>
+  </div>`;
+}
+
+function buildPLPanel(niche, pl) {
+  if (!pl) return `<div class="loading-pl">Click to load P&amp;L data...</div>`;
+  const m = pl.revenue_model || {};
+  const b = pl.automation_blueprint || {};
+
+  const tools = (b.recommended_tools || []).slice(0,3).map(t => `${t.tool}${t.cost_mo === 0 ? ' (free)' : ' ($'+t.cost_mo+'/mo)'}`).join(', ');
+  const autoTasks = (b.automated_tasks || []).slice(0,4).join(', ');
+  const escalation = m.escalation_path || '';
+
+  return `
+    <div class="pl-grid">
+      <div class="pl-block">
+        <div class="pl-block-title">Startup Capital</div>
+        <div class="pl-row"><span class="pl-key">Home-based</span><span class="pl-val">${fmt$(m.startup_home_based||0)}</span></div>
+        <div class="pl-row"><span class="pl-key">Small</span><span class="pl-val">${fmt$(m.startup_small||0)}</span></div>
+        <div class="pl-row"><span class="pl-key">Full storefront</span><span class="pl-val">${fmt$(m.startup_full||0)}</span></div>
+      </div>
+      <div class="pl-block">
+        <div class="pl-block-title">Monthly Revenue</div>
+        <div class="pl-row"><span class="pl-key">Conservative</span><span class="pl-val">${fmt$(m.revenue_conservative||0)}</span></div>
+        <div class="pl-row"><span class="pl-key">Median</span><span class="pl-val green">${fmt$(m.revenue_median||0)}</span></div>
+        <div class="pl-row"><span class="pl-key">Optimistic</span><span class="pl-val">${fmt$(m.revenue_optimistic||0)}</span></div>
+      </div>
+      <div class="pl-block">
+        <div class="pl-block-title">Net Margins</div>
+        <div class="pl-row"><span class="pl-key">Solo owner</span><span class="pl-val green">${fmtPct(m.net_margin_solo_pct||0)}</span></div>
+        <div class="pl-row"><span class="pl-key">+1 employee</span><span class="pl-val yellow">${fmtPct(m.net_margin_1staff_pct||0)}</span></div>
+        <div class="pl-row"><span class="pl-key">COGS</span><span class="pl-val">${fmtPct(m.cogs_pct||0)}</span></div>
+      </div>
+      <div class="pl-block">
+        <div class="pl-block-title">Payback (small)</div>
+        <div class="pl-row"><span class="pl-key">Solo</span><span class="pl-val green">${m.payback_solo_months||'?'} mo</span></div>
+        <div class="pl-row"><span class="pl-key">+1 staff</span><span class="pl-val">${m.payback_1staff_months||'?'} mo</span></div>
+        <div class="pl-row"><span class="pl-key">Automation saves</span><span class="pl-val">${fmt$(m.automation_monthly_savings||0)}/mo</span></div>
+      </div>
+    </div>
+    <div class="pl-block">
+      <div class="pl-block-title">Staffing Models</div>
+      <div class="pl-row" style="margin-bottom:4px"><span class="pl-key" style="min-width:70px">Solo:</span><span style="color:var(--text);font-size:12px">${m.model_solo_description||''}</span></div>
+      <div class="pl-row" style="margin-bottom:4px"><span class="pl-key" style="min-width:70px">+1 staff:</span><span style="color:var(--text);font-size:12px">${m.model_1staff_description||''}</span></div>
+      <div class="pl-row"><span class="pl-key" style="min-width:70px">+2 staff:</span><span style="color:var(--text);font-size:12px">${m.model_2staff_description||''}</span></div>
+    </div>
+    ${tools ? `<div class="pl-tools" style="margin-top:12px"><strong>🤖 Automation (${b.automation_score||0}/100):</strong> ${autoTasks}<br><strong>Tools:</strong> ${tools} · saves ${fmt$(b.monthly_savings_usd||0)}/mo</div>` : ''}
+    ${escalation ? `<div class="pl-path"><strong>📈 Low → High margin path:</strong><br>${escalation}</div>` : ''}
+  `;
+}
+
+async function togglePL(niche) {
+  const panel = document.getElementById(`pl-${niche}`);
+  if (!panel) return;
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) { panel.classList.remove('open'); return; }
+
+  panel.classList.add('open');
+  if (!plCache[niche]) {
+    panel.innerHTML = `<div class="loading-pl"><span class="spinner"></span>Loading P&L...</div>`;
+    const pl = await fetchPL(niche);
+    if (pl) {
+      panel.innerHTML = buildPLPanel(niche, pl);
+    } else {
+      panel.innerHTML = `<div class="loading-pl" style="color:var(--red)">Failed to load P&L data.</div>`;
+    }
+  } else {
+    panel.innerHTML = buildPLPanel(niche, plCache[niche]);
+  }
+}
+
+function renderFeasResults() {
+  if (!currentOpps.length) return;
+  // Re-render with feasibility overlay
+  renderResults({ zip_code: currentZip, opportunities: currentOpps, demographics: {} });
+}
+
+function renderCompare(data1, data2) {
+  const col = (data) => {
+    const zip = data.zip_code || '';
+    const demo = data.demographics || {};
+    const opps = (data.opportunities || []).slice(0, 8);
+    const city = demo.city || '';
+    const state = demo.state || '';
+    let html = `<div>
+      <div class="demo-card" style="margin-bottom:16px">
+        <div class="demo-zip">${zip}</div>
+        <div class="demo-divider"></div>
+        <div class="demo-stat"><span class="demo-label">Location</span><span class="demo-value" style="font-size:14px">${city}${state?', '+state:''}</span></div>
+        <div class="demo-divider"></div>
+        <div class="demo-stat"><span class="demo-label">Population</span><span class="demo-value">${(demo.population||0).toLocaleString()}</span></div>
+        <div class="demo-divider"></div>
+        <div class="demo-stat"><span class="demo-label">Income</span><span class="demo-value">${fmtFull$(demo.median_income||0)}</span></div>
+      </div>
+      <div class="section-title compare-col">Opportunities</div>`;
+    opps.forEach((opp, i) => {
+      const niche = opp.niche || '';
+      const name = niche.replace(/_/g,' ').toUpperCase();
+      const tier = opp.tier || 'C';
+      const score = opp.opportunity_score || 0;
+      const sat = opp.saturation_ratio || 0;
+      const gap = sat > 0 ? (1/sat).toFixed(1)+'x' : '∞';
+      html += `<div class="opp-card" style="margin-bottom:8px">
+        <div class="opp-header" style="padding:12px 16px">
+          ${tierBadge(tier)}
+          <span class="opp-rank">#${i+1}</span>
+          <span class="opp-name" style="font-size:13px">${name}</span>
+          <span class="opp-score">Score: <strong>${score}</strong></span>
+        </div>
+        <div class="opp-meta" style="padding:0 16px 10px">
+          <span>📊 ${gap} gap</span>
+          <span>📈 ${opp.demand_score||0}/100 demand</span>
+          ${opp.typical_capital_req ? `<span>💰 ${fmt$(opp.typical_capital_req)}</span>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    return html;
+  };
+
+  document.getElementById('results').innerHTML = `
+    <div class="compare-layout">
+      ${col(data1)}
+      ${col(data2)}
+    </div>`;
+}
+
+// Auto-focus zip input on load
+window.onload = () => document.getElementById('zip1').focus();
+</script>
+</body>
+</html>
