@@ -1,39 +1,59 @@
-# Environment
-.env
-*.env
-
-# Data (generated at runtime)
-data/market.db
-data/artifact_cache/
-data/content/
-data/reports/
-
 # Python
 __pycache__/
 *.py[cod]
-*.so
-.Python
-build/
-dist/
+*.pyo
+*.pyd
 *.egg-info/
+dist/
+build/
 .eggs/
+*.egg
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-.ruff_cache/
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets — never commit
+.env
+.env.*
+secrets.json
+secrets.yaml
+
+# NeighborIQ data (scraped, large, sensitive)
+data/market.db
+data/market.db-wal
+data/market.db-shm
+data/logs/
+data/content/
+data/cache/
+!data/.gitkeep
 
 # Playwright
 playwright-report/
+test-results/
 
-# IDE
+# Pytest / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type checking
+.mypy_cache/
+.ruff_cache/
+
+# IDEs
 .vscode/
 .idea/
 *.swp
+*.swo
 
-logs/
-data/market.db
-data/content/
-*.pid
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (extension build artifacts)
+node_modules/
+extension/dist/

@@ -1,41 +1,64 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "neighboriq"
-version = "0.1.0"
+version = "0.2.0"
 description = "Neighborhood business intelligence engine — find underserved niches from real-time data"
 readme = "README.md"
-license = {text = "MIT"}
+license = {file = "LICENSE"}
 requires-python = ">=3.10"
-keywords = ["business-intelligence", "neighborhood-analysis", "market-research", "local-business"]
+keywords = ["business-intelligence", "neighborhood-analysis", "market-research", "local-business", "entrepreneurship"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+    "Topic :: Scientific/Engineering :: Information Analysis",
 ]
+
+# Core deps — no heavy scraping tools required for the analytical engine
 dependencies = [
-    "requests>=2.31",
-    "playwright>=1.40",
-    "pytrends>=4.9",
-    "census>=0.8",
-    "vaderSentiment>=3.3",
-    "Pillow>=10.0",
-    "groq>=0.4",
-    "anthropic>=0.20",
-    "fastapi>=0.110",
-    "uvicorn>=0.27",
-    "weasyprint>=60.0",
+    "rich>=13.0",
 ]
 
 [project.optional-dependencies]
+# Full scraping pipeline
+scrape = [
+    "playwright>=1.40",
+    "requests>=2.31",
+    "pytrends>=4.9",
+    "vaderSentiment>=3.3",
+]
+# REST API + web dashboard
+api = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+]
+# LLM market evaluation
+llm = [
+    "groq>=0.4",
+    "anthropic>=0.20",
+]
+# PDF report generation
+reports = [
+    "Pillow>=10.0",
+    "weasyprint>=60.0",
+]
+# Everything
+full = [
+    "neighboriq[scrape,api,llm,reports]",
+]
+# Development
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
+    "pytest-cov>=4.0",
     "black>=24.0",
     "ruff>=0.3",
     "mypy>=1.9",
@@ -45,13 +68,43 @@ dev = [
 neighboriq = "neighboriq.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/joshoit/neighboriq"
-Repository = "https://github.com/joshoit/neighboriq"
-"Bug Tracker" = "https://github.com/joshoit/neighboriq/issues"
+Homepage = "https://github.com/sijoyalmeida09/neighboriq"
+Repository = "https://github.com/sijoyalmeida09/neighboriq"
+"Bug Tracker" = "https://github.com/sijoyalmeida09/neighboriq/issues"
+Documentation = "https://github.com/sijoyalmeida09/neighboriq#readme"
 
+# ── Package layout ────────────────────────────────────────────────────────────
+# The neighboriq Python package lives at this directory (pyproject.toml root).
+# This lets `pip install -e .` work from inside automation/neighboriq/
+# without restructuring the source tree.
+[tool.setuptools.package-dir]
+neighboriq = "."
+
+[tool.setuptools.packages.find]
+where = [".."]
+include = ["neighboriq*"]
+exclude = ["neighboriq.tests*", "neighboriq.data*"]
+
+# ── Pytest ────────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = ["tests"]
+
+# ── Ruff ─────────────────────────────────────────────────────────────────────
 [tool.ruff]
 line-length = 100
 target-version = "py310"
 
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
+
+# ── Black ─────────────────────────────────────────────────────────────────────
 [tool.black]
 line-length = 100
+
+# ── Mypy ──────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
