@@ -34,6 +34,12 @@ from neighboriq.analyzers.asset_mapper import (  # noqa: F401
     FeasibilityResult,
     filter_by_assets,
 )
+from neighboriq.scoring.niche_roadmap import (  # noqa: F401
+    NicheRoadmap,
+    get_niche_roadmap,
+    format_roadmap,
+    list_roadmap_niches,
+)
 
 __all__ = [
     "__version__",
@@ -48,4 +54,9 @@ __all__ = [
     "AssetProfile",
     "FeasibilityResult",
     "filter_by_assets",
+    # Niche roadmaps
+    "NicheRoadmap",
+    "get_niche_roadmap",
+    "format_roadmap",
+    "list_roadmap_niches",
 ]

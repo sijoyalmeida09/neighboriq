@@ -271,3 +271,75 @@ def test_mcp_server_import() -> None:
     assert "get_revenue_model" in mcp._HANDLERS
     assert "filter_by_assets" in mcp._HANDLERS
     assert "analyze_business" in mcp._HANDLERS
+    assert "get_niche_roadmap" in mcp._HANDLERS
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Niche roadmap
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_niche_roadmap_barbershop() -> None:
+    from neighboriq.scoring.niche_roadmap import get_niche_roadmap
+    r = get_niche_roadmap("barbershop")
+    assert r.niche == "barbershop"
+    assert r.delta >= 4.0
+    assert r.delta4_enabled is True
+    assert r.phase1_revenue_target > 0
+    assert r.phase2_revenue_target > r.phase1_revenue_target
+    assert r.phase3_revenue_target > r.phase2_revenue_target
+    assert len(r.phase1_actions) >= 3
+    assert r.visit_frequency_days > 0
+    assert r.customer_ltv_usd > 0
+    assert 0 < r.repeat_revenue_pct <= 100
+    assert r.nse_score > 0
+
+
+def test_niche_roadmap_immutable() -> None:
+    import dataclasses
+    from neighboriq.scoring.niche_roadmap import get_niche_roadmap
+    r = get_niche_roadmap("laundromat")
+    assert dataclasses.is_dataclass(r)
+    try:
+        r.niche = "mutated"  # type: ignore[misc]
+        assert False, "Should have raised FrozenInstanceError"
+    except Exception:
+        pass
+
+
+def test_niche_roadmap_unknown_returns_generic() -> None:
+    from neighboriq.scoring.niche_roadmap import get_niche_roadmap, list_roadmap_niches
+    r = get_niche_roadmap("flying_unicorn_store")
+    assert r is not None
+    assert r.phase1_revenue_target > 0
+    known = list_roadmap_niches()
+    assert "flying_unicorn_store" not in known
+
+
+def test_niche_roadmap_list_niches() -> None:
+    from neighboriq.scoring.niche_roadmap import list_roadmap_niches
+    niches = list_roadmap_niches()
+    assert len(niches) >= 10
+    for expected in ("barbershop", "nail_salon", "laundromat", "daycare", "auto_repair"):
+        assert expected in niches, f"Expected '{expected}' in roadmap niches"
+
+
+def test_niche_roadmap_format() -> None:
+    from neighboriq.scoring.niche_roadmap import get_niche_roadmap, format_roadmap
+    r = get_niche_roadmap("coffee_shop")
+    text = format_roadmap(r)
+    assert "PHASE 1" in text
+    assert "PHASE 2" in text
+    assert "PHASE 3" in text
+    assert "DELTA 4" in text
+    assert "REPEAT CUSTOMER" in text
+    assert "MOAT" in text
+
+
+def test_niche_roadmap_public_api_import() -> None:
+    import neighboriq
+    assert hasattr(neighboriq, "NicheRoadmap")
+    assert hasattr(neighboriq, "get_niche_roadmap")
+    assert hasattr(neighboriq, "format_roadmap")
+    assert hasattr(neighboriq, "list_roadmap_niches")
+    r = neighboriq.get_niche_roadmap("indian_restaurant")
+    assert r.delta >= 4.0

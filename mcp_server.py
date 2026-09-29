@@ -100,6 +100,30 @@ _TOOLS = [
         "inputSchema": {"type": "object", "properties": {}},
     },
     {
+        "name": "get_niche_roadmap",
+        "description": (
+            "Get the complete 3-phase scaling roadmap for a business niche. "
+            "Includes: Phase 1 (operational), Phase 2 (community anchor), Phase 3 (institutional moat). "
+            "Also returns Delta 4 analysis (irreversibility score), repeat customer mechanics, "
+            "and the hardest execution challenge at each phase."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "niche": {
+                    "type": "string",
+                    "description": (
+                        "Business niche slug. Known niches: barbershop, nail_salon, laundromat, "
+                        "convenience_store, tutoring_center, daycare, auto_repair, coffee_shop, "
+                        "gym, indian_restaurant, check_cashing, florist. "
+                        "Any other value returns a generic roadmap."
+                    ),
+                },
+            },
+            "required": ["niche"],
+        },
+    },
+    {
         "name": "analyze_business",
         "description": (
             "Fetch any local business website URL, identify what they offer, "
@@ -586,6 +610,22 @@ def handle_get_neighborhood_stats(_args: dict) -> str:
         return f"Stats error: {exc}"
 
 
+def handle_get_niche_roadmap(args: dict) -> str:
+    niche = args.get("niche", "").strip().lower().replace(" ", "_").replace("-", "_")
+    if not niche:
+        return "Error: niche is required."
+    try:
+        from neighboriq.scoring.niche_roadmap import get_niche_roadmap, format_roadmap, list_roadmap_niches
+        roadmap = get_niche_roadmap(niche)
+        known = list_roadmap_niches()
+        header = "" if niche in known else f"[Generic roadmap — '{niche}' not in curated library. Known: {', '.join(known)}]\n\n"
+        return header + format_roadmap(roadmap)
+    except ImportError as exc:
+        return f"niche_roadmap module not importable: {exc}"
+    except Exception as exc:
+        return f"Roadmap error for '{niche}': {exc}"
+
+
 def handle_analyze_business(args: dict) -> str:
     url = args.get("url", "").strip()
     zip_override = args.get("zip_code", "").strip()
@@ -625,6 +665,7 @@ _HANDLERS = {
     "compare_neighborhoods": handle_compare_neighborhoods,
     "get_neighborhood_stats": handle_get_neighborhood_stats,
     "analyze_business": handle_analyze_business,
+    "get_niche_roadmap": handle_get_niche_roadmap,
 }
 
 

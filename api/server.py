@@ -247,6 +247,25 @@ async def asset_filter(req: AssetFilterRequest) -> dict:
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+# ── Niche roadmap ─────────────────────────────────────────────────────────────
+
+@app.get("/roadmap/{niche}")
+async def get_niche_roadmap_endpoint(niche: str) -> dict:
+    """Return 3-phase scaling roadmap, Delta 4 analysis, and repeat customer mechanics for a niche."""
+    import dataclasses
+    from neighboriq.scoring.niche_roadmap import get_niche_roadmap, format_roadmap, list_roadmap_niches
+    slug = niche.lower().replace("-", "_").replace(" ", "_")
+    roadmap = get_niche_roadmap(slug)
+    known = list_roadmap_niches()
+    return {
+        "niche": slug,
+        "is_curated": slug in known,
+        "curated_niches": known,
+        "roadmap": dataclasses.asdict(roadmap),
+        "formatted": format_roadmap(roadmap),
+    }
+
+
 # ── Static dashboard ──────────────────────────────────────────────────────────
 
 if DASHBOARD_DIR.exists():
