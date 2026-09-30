@@ -337,6 +337,120 @@ _RULES: list[_AdjacencyRule] = [
         skills_overlap_pct=0.55,
         domain_fit="any",
     ),
+
+    # ── 8 novel income streams (systematically underexploited) ───────────────
+
+    _rule(
+        lambda p, d: d in ("healthcare", "local_service") and any(
+            any(kw in r[0].lower() for kw in ("nurse", "medical", "clinic", "doctor", "dental", "health", "patient"))
+            for r in p.roles
+        ),
+        name="Medicare Chronic Care Management (CCM) Billing",
+        rationale="CMS pays $42-100/patient/month for 20-min care coordination calls. Any clinic or health-adjacent service with Medicare patients can bill CCM without new equipment. Less than 5% of eligible providers bill it — massive unclaimed revenue.",
+        assets_leveraged=("existing patient roster", "any clinical staff"),
+        capital_required=500,
+        months_to_first_revenue=2,
+        monthly_revenue_at_maturity=8000,
+        risk_level="LOW",
+        skills_overlap_pct=0.70,
+        requires_new_license=True,
+        license_name="CMS enrollment + CCM billing software (Chronic Care IQ, etc.)",
+        domain_fit="healthcare,local_service",
+    ),
+
+    _rule(
+        lambda p, d: p.years_in_market >= 2 and p.monthly_revenue >= 5000,
+        name="SBA 7(a) Loan Packaging — Fee Income",
+        rationale="Banks pay loan packagers 1-3% of funded loan amount. Any established SMB owner who understands financials can package SBA loans for other small businesses in their community. $500K loan = $5K-15K fee. Zero capital required.",
+        assets_leveraged=("business financial records experience", "community relationships", "P&L understanding"),
+        capital_required=0,
+        months_to_first_revenue=3,
+        monthly_revenue_at_maturity=5000,
+        risk_level="MEDIUM",
+        skills_overlap_pct=0.40,
+        domain_fit="professional_services,any",
+    ),
+
+    _rule(
+        lambda p, d: d in ("software_saas", "manufacturing", "food_beverage", "creative_media") and p.years_in_market >= 1,
+        name="R&D Tax Credit Recovery (IRS Section 41)",
+        rationale="IRS gives 6-8% credit on qualified R&D wages. Most SMBs (software, manufacturing, food producers, custom fabricators) qualify but never claim it. A tax attorney files amended returns for 3 prior years — average recovery $30K-$200K. Contingency fee model means $0 upfront.",
+        assets_leveraged=("payroll records", "development work documentation", "prior tax returns"),
+        capital_required=0,
+        months_to_first_revenue=4,
+        monthly_revenue_at_maturity=2000,
+        risk_level="LOW",
+        skills_overlap_pct=0.20,
+        domain_fit="software_saas,manufacturing,food_beverage,creative_media",
+    ),
+
+    _rule(
+        lambda p, d: d in ("music_entertainment", "creative_media") or any(
+            any(kw in a.lower() for kw in ("music", "audio", "recording", "song", "track"))
+            for a in p.data_assets
+        ),
+        name="SoundExchange + The MLC Unclaimed Royalty Registration",
+        rationale="SoundExchange holds $400M+ in unclaimed royalties for digital performance. The MLC (Mechanical Licensing Collective) holds another $424M unclaimed. Any artist or label with recordings on Spotify/Apple Music is likely owed money. Registration is free and takes 20 minutes.",
+        assets_leveraged=("existing music recordings", "streaming catalog"),
+        capital_required=0,
+        months_to_first_revenue=2,
+        monthly_revenue_at_maturity=800,
+        risk_level="LOW",
+        skills_overlap_pct=0.90,
+        domain_fit="music_entertainment,creative_media",
+    ),
+
+    _rule(
+        lambda p, d: len(p.equipment) >= 2 and any(v > 5000 for _, v in p.equipment),
+        name="Equipment Idle-Time Rental (Yard Club / Fat Llama model)",
+        rationale="Construction, restaurant, and trade equipment sits idle 60-70% of the time. Renting via Fat Llama, Yard Club, or direct local Facebook Marketplace earns $200-800/day per piece. $10K excavator = $500-800/day rental vs $0 sitting in your yard. Zero additional capital.",
+        assets_leveraged=("owned equipment", "existing insurance coverage"),
+        capital_required=0,
+        months_to_first_revenue=1,
+        monthly_revenue_at_maturity=3000,
+        risk_level="LOW",
+        skills_overlap_pct=0.80,
+        domain_fit="any",
+    ),
+
+    _rule(
+        lambda p, d: p.sqft_owned > 200 or p.real_estate_value > 50000,
+        name="5G Small Cell Tower Leasing",
+        rationale="AT&T, Verizon, T-Mobile pay $1,000-3,000/month to lease rooftop space for 5G small cells. Any commercial building owner can negotiate a 10-25 year lease. Initial negotiation takes 6-12 months but generates passive income for decades. No capital required — carrier pays installation.",
+        assets_leveraged=("owned or controlled rooftop/parking space", "commercial location in urban/suburban area"),
+        capital_required=0,
+        months_to_first_revenue=9,
+        monthly_revenue_at_maturity=2000,
+        risk_level="LOW",
+        skills_overlap_pct=0.20,
+        domain_fit="real_estate,any",
+    ),
+
+    _rule(
+        lambda p, d: d in ("local_service", "logistics", "distribution") and p.email_list_size < 200,
+        name="AI Scheduling + Quote Agent — Sell to 5 Competitors",
+        rationale="Tradespeople (plumbers, electricians, HVAC, landscapers) spend 2-4 hrs/day on scheduling and quotes. A simple n8n + Twilio + Google Calendar agent handles this for $200-500/mo per client. One NeighborIQ user who builds this for themselves can resell the same system to 5-10 competitors.",
+        assets_leveraged=("existing service operations knowledge", "competitor relationships", "scheduling workflow experience"),
+        capital_required=200,
+        months_to_first_revenue=2,
+        monthly_revenue_at_maturity=3000,
+        risk_level="LOW",
+        skills_overlap_pct=0.50,
+        domain_fit="local_service,logistics,distribution",
+    ),
+
+    _rule(
+        lambda p, d: d in ("professional_services", "agency_services", "retail", "distribution") and p.years_in_market >= 3,
+        name="State Unclaimed Property Recovery — Consulting",
+        rationale="Every US state holds unclaimed property (forgotten bank accounts, vendor credits, security deposits). Most businesses have unclaimed property they never filed for. A consultant charges 20-30% of recovered amounts — average recovery $5K-50K per business client. $0 capital, pure knowledge arbitrage.",
+        assets_leveraged=("accounting knowledge", "business network", "state treasury database access (free)"),
+        capital_required=0,
+        months_to_first_revenue=2,
+        monthly_revenue_at_maturity=4000,
+        risk_level="LOW",
+        skills_overlap_pct=0.40,
+        domain_fit="professional_services,agency_services,retail,distribution",
+    ),
 ]
 
 
