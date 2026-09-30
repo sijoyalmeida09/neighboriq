@@ -185,4 +185,4 @@ Each analysis auto-generates a YouTube script in the "neighborhood opportunity" 
 
 MIT — use freely, attribution appreciated.
 
-Built by [JoSho IT](https://github.com/joshoit) · [YouTube](https://youtube.com/@joshoit)
+Built by Sijoy Almeida
