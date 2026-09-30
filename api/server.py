@@ -266,6 +266,130 @@ async def get_niche_roadmap_endpoint(niche: str) -> dict:
     }
 
 
+# ── Growth forecast ───────────────────────────────────────────────────────────
+
+class ForecastRequest(BaseModel):
+    biz_name: str
+    domain_id: str
+    monthly_revenue: int = 0
+    monthly_expenses: int = 0
+    city_population: int = 700_000
+    weeks: int = 12
+
+
+@app.post("/forecast")
+async def get_forecast_endpoint(req: ForecastRequest) -> dict:
+    """Generate date-stamped growth forecast with TAM/SAM/SOM and weekly action plan."""
+    import dataclasses
+    from neighboriq.intelligence.benchmark_engine import get_benchmarks
+    from neighboriq.intelligence.domain_taxonomy import get_domain
+    from neighboriq.intelligence.biz_profile import BizProfile
+    from neighboriq.intelligence.milestone_engine import generate_forecast
+
+    domain = get_domain(req.domain_id)
+    if domain is None:
+        raise HTTPException(status_code=400, detail=f"Unknown domain: {req.domain_id}")
+
+    try:
+        benchmarks = get_benchmarks(req.domain_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Benchmark fetch failed: {exc}")
+
+    profile = BizProfile(
+        name=req.biz_name,
+        description=req.domain_id.replace("_", " "),
+        naics_code=None,
+        year_founded=None,
+        website=None,
+        equipment=(),
+        inventory_value=0,
+        vehicles=0,
+        sqft_owned=0,
+        sqft_leased=0,
+        real_estate_value=0,
+        monthly_web_traffic=0,
+        email_list_size=0,
+        social_followers=(),
+        software_tools=(),
+        data_assets=(),
+        ip_patents=(),
+        headcount=0,
+        roles=(),
+        owner_certifications=(),
+        owner_network_size=0,
+        monthly_revenue=req.monthly_revenue,
+        monthly_expenses=req.monthly_expenses,
+        cash_on_hand=0,
+        credit_line=0,
+        monthly_debt_service=0,
+        years_in_market=0,
+        avg_rating=4.0,
+        review_count=0,
+        recognition="neighborhood",
+        licenses=(),
+        certifications=(),
+        exclusive_supplier_contracts=(),
+        proprietary_processes=(),
+        revenue_streams=(),
+    )
+
+    try:
+        forecast = generate_forecast(profile, benchmarks, domain, city_population=req.city_population)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Forecast generation failed: {exc}")
+
+    return {
+        "biz_name": forecast.biz_name,
+        "domain_id": forecast.domain_id,
+        "start_date": forecast.start_date,
+        "market": {
+            "tam_usd": forecast.market.tam_usd,
+            "sam_usd": forecast.market.sam_usd,
+            "som_usd": forecast.market.som_usd,
+            "year1_revenue": forecast.market.year1_revenue,
+            "year3_revenue": forecast.market.year3_revenue,
+            "market_phase": forecast.market.market_phase,
+            "tam_description": forecast.market.tam_description,
+            "sam_description": forecast.market.sam_description,
+            "som_description": forecast.market.som_description,
+        },
+        "break_even_week": forecast.break_even_week,
+        "year1_roi_pct": forecast.year1_roi_pct,
+        "total_investment_needed": forecast.total_investment_needed,
+        "weekly_milestones": [
+            {
+                "week_number": m.week_number,
+                "date": m.date,
+                "theme": m.theme,
+                "actions": list(m.actions),
+                "revenue_impact_monthly": m.revenue_impact_monthly,
+                "go_signal": m.go_signal,
+                "no_go_signal": m.no_go_signal,
+                "cost_to_execute": m.cost_to_execute,
+            }
+            for m in forecast.weekly_milestones[: req.weeks]
+        ],
+        "monthly_targets": [
+            {
+                "month_number": t.month_number,
+                "date": t.date,
+                "revenue_target": t.revenue_target,
+                "profit_target": t.profit_target,
+                "key_metric": t.key_metric,
+                "key_metric_target": t.key_metric_target,
+                "what_unlocks_next": t.what_unlocks_next,
+                "risk_if_missed": t.risk_if_missed,
+            }
+            for t in forecast.monthly_targets
+        ],
+        "novel_opportunities": list(forecast.novel_opportunities),
+        "recommended_llm": forecast.recommended_llm,
+        "recommended_automation": forecast.recommended_automation,
+        "recommended_agent_framework": forecast.recommended_agent_framework,
+        "llm_cost_monthly": forecast.llm_cost_monthly,
+    }
+
+
 # ── Static dashboard ──────────────────────────────────────────────────────────
 
 if DASHBOARD_DIR.exists():

@@ -141,6 +141,34 @@ _TOOLS = [
             "required": ["url"],
         },
     },
+    {
+        "name": "get_forecast",
+        "description": (
+            "Generate a date-stamped growth forecast with TAM/SAM/SOM market sizing, "
+            "12-week action plan with exact calendar dates and go/no-go signals, "
+            "24-month revenue targets, novel income opportunities, and unbiased AI tool recommendations. "
+            "Works for any of 14 business domains."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "biz_name": {"type": "string", "description": "Name of the business"},
+                "domain_id": {
+                    "type": "string",
+                    "description": (
+                        "Business domain. One of: local_service, food_beverage, healthcare, logistics, "
+                        "distribution, manufacturing, software_saas, agency_services, music_entertainment, "
+                        "retail, real_estate, education, creative_media, professional_services"
+                    ),
+                },
+                "monthly_revenue": {"type": "integer", "description": "Current monthly gross revenue in USD (0 if unknown)"},
+                "monthly_expenses": {"type": "integer", "description": "Current monthly expenses in USD (0 if unknown)"},
+                "city_population": {"type": "integer", "description": "Metro area population (default 700000 = mid-size US city)"},
+                "weeks": {"type": "integer", "description": "Number of weekly milestones to show (default 12)"},
+            },
+            "required": ["biz_name", "domain_id"],
+        },
+    },
 ]
 
 # ── tool handlers ─────────────────────────────────────────────────────────────
@@ -626,6 +654,84 @@ def handle_get_niche_roadmap(args: dict) -> str:
         return f"Roadmap error for '{niche}': {exc}"
 
 
+def handle_get_forecast(args: dict) -> str:
+    biz_name = args.get("biz_name", "").strip()
+    domain_id = args.get("domain_id", "").strip().lower().replace(" ", "_").replace("-", "_")
+    monthly_revenue = int(args.get("monthly_revenue", 0))
+    monthly_expenses = int(args.get("monthly_expenses", 0))
+    city_population = int(args.get("city_population", 700_000))
+    weeks = int(args.get("weeks", 12))
+
+    if not biz_name:
+        return "Error: biz_name is required."
+    if not domain_id:
+        return "Error: domain_id is required."
+
+    try:
+        from neighboriq.intelligence.benchmark_engine import get_benchmarks
+        from neighboriq.intelligence.domain_taxonomy import get_domain
+        from neighboriq.intelligence.biz_profile import BizProfile
+        from neighboriq.intelligence.milestone_engine import generate_forecast, format_forecast
+    except ImportError as exc:
+        return f"Intelligence modules not importable: {exc}"
+
+    domain = get_domain(domain_id)
+    if domain is None:
+        valid = ("local_service, food_beverage, healthcare, logistics, distribution, "
+                 "manufacturing, software_saas, agency_services, music_entertainment, "
+                 "retail, real_estate, education, creative_media, professional_services")
+        return f"Unknown domain '{domain_id}'. Valid options: {valid}"
+
+    try:
+        benchmarks = get_benchmarks(domain_id)
+    except Exception as exc:
+        return f"Benchmark fetch failed: {exc}"
+
+    profile = BizProfile(
+        name=biz_name,
+        description=domain_id.replace("_", " "),
+        naics_code=None,
+        year_founded=None,
+        website=None,
+        equipment=(),
+        inventory_value=0,
+        vehicles=0,
+        sqft_owned=0,
+        sqft_leased=0,
+        real_estate_value=0,
+        monthly_web_traffic=0,
+        email_list_size=0,
+        social_followers=(),
+        software_tools=(),
+        data_assets=(),
+        ip_patents=(),
+        headcount=0,
+        roles=(),
+        owner_certifications=(),
+        owner_network_size=0,
+        monthly_revenue=monthly_revenue,
+        monthly_expenses=monthly_expenses,
+        cash_on_hand=0,
+        credit_line=0,
+        monthly_debt_service=0,
+        years_in_market=0,
+        avg_rating=4.0,
+        review_count=0,
+        recognition="neighborhood",
+        licenses=(),
+        certifications=(),
+        exclusive_supplier_contracts=(),
+        proprietary_processes=(),
+        revenue_streams=(),
+    )
+
+    try:
+        forecast = generate_forecast(profile, benchmarks, domain, city_population=city_population)
+        return format_forecast(forecast, weeks=weeks)
+    except Exception as exc:
+        return f"Forecast generation failed: {exc}\n{traceback.format_exc()}"
+
+
 def handle_analyze_business(args: dict) -> str:
     url = args.get("url", "").strip()
     zip_override = args.get("zip_code", "").strip()
@@ -666,6 +772,7 @@ _HANDLERS = {
     "get_neighborhood_stats": handle_get_neighborhood_stats,
     "analyze_business": handle_analyze_business,
     "get_niche_roadmap": handle_get_niche_roadmap,
+    "get_forecast": handle_get_forecast,
 }
 
 
