@@ -1,0 +1,25 @@
+{
+  "domain_id": "creative_media",
+  "industry_label": "Creative Media",
+  "revenue_p25": 7200,
+  "revenue_p50": 12000,
+  "revenue_p75": 18600,
+  "net_margin_typical": 0.5044,
+  "gross_margin_typical": 0.0819,
+  "ebitda_margin": 0.1101,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 48000,
+  "customer_ltv_typical": 5000,
+  "churn_annual": 0.25,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.918,
+    "labor": -0.211,
+    "marketing": -0.051
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026"
+  ]
+}

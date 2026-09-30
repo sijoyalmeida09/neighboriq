@@ -1,0 +1,26 @@
+{
+  "domain_id": "manufacturing",
+  "industry_label": "Manufacturing",
+  "revenue_p25": 45000,
+  "revenue_p50": 75000,
+  "revenue_p75": 116250,
+  "net_margin_typical": 0.3747,
+  "gross_margin_typical": 0.1058,
+  "ebitda_margin": 0.1678,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 300000,
+  "customer_ltv_typical": 120000,
+  "churn_annual": 0.1,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.894,
+    "labor": -0.081,
+    "marketing": -0.032
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "FRED IPMAN"
+  ]
+}

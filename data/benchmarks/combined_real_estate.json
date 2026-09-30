@@ -1,0 +1,26 @@
+{
+  "domain_id": "real_estate",
+  "industry_label": "Real Estate",
+  "revenue_p25": 12000,
+  "revenue_p50": 20000,
+  "revenue_p75": 31000,
+  "net_margin_typical": 0.3527,
+  "gross_margin_typical": 0.0701,
+  "ebitda_margin": 0.224,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 80000,
+  "customer_ltv_typical": 15000,
+  "churn_annual": null,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.93,
+    "labor": -0.141,
+    "marketing": -0.034
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "FRED RRVRUSQ156N"
+  ]
+}

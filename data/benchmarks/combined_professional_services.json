@@ -1,0 +1,27 @@
+{
+  "domain_id": "professional_services",
+  "industry_label": "Professional Services",
+  "revenue_p25": 21000,
+  "revenue_p50": 35000,
+  "revenue_p75": 54250,
+  "net_margin_typical": 0.22,
+  "gross_margin_typical": 0.6,
+  "ebitda_margin": 0.352,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 140000,
+  "customer_ltv_typical": 12000,
+  "churn_annual": 0.1,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "LOW",
+  "top_costs_pct_json": {
+    "cogs": 0.4,
+    "labor": 0.19,
+    "rent": 0.038,
+    "marketing": 0.046,
+    "overhead": 0.106
+  },
+  "data_sources_list": [
+    "hardcoded_defaults"
+  ]
+}

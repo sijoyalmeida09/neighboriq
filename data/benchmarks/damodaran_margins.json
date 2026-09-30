@@ -1,0 +1,482 @@
+{
+  "advertising": {
+    "net_margin": 0.3624,
+    "ebit_margin": -0.003,
+    "ebitda_margin": 0.133
+  },
+  "aerospace/defense": {
+    "net_margin": 0.1748,
+    "ebit_margin": 0.0499,
+    "ebitda_margin": 0.098
+  },
+  "air transport": {
+    "net_margin": 0.24789999999999998,
+    "ebit_margin": 0.025099999999999997,
+    "ebitda_margin": 0.056799999999999996
+  },
+  "apparel": {
+    "net_margin": 0.5688,
+    "ebit_margin": 0.0385,
+    "ebitda_margin": 0.1018
+  },
+  "auto &\n        truck": {
+    "net_margin": 0.1041,
+    "ebit_margin": 0.0129,
+    "ebitda_margin": 0.0316
+  },
+  "auto parts": {
+    "net_margin": 0.15839999999999999,
+    "ebit_margin": 0.0072,
+    "ebitda_margin": 0.0637
+  },
+  "bank (money\n        center)": {
+    "net_margin": 1.0,
+    "ebit_margin": 0.2889,
+    "ebitda_margin": 0.023
+  },
+  "banks\n        (regional)": {
+    "net_margin": 0.9962000000000001,
+    "ebit_margin": 0.2749,
+    "ebitda_margin": 0.016
+  },
+  "beverage\n        (alcoholic)": {
+    "net_margin": 0.4696,
+    "ebit_margin": 0.005600000000000001,
+    "ebitda_margin": 0.23370000000000002
+  },
+  "beverage\n        (soft)": {
+    "net_margin": 0.5474,
+    "ebit_margin": 0.134,
+    "ebitda_margin": 0.2101
+  },
+  "broadcasting": {
+    "net_margin": 0.38130000000000003,
+    "ebit_margin": 0.0206,
+    "ebitda_margin": 0.1328
+  },
+  "brokerage\n        & investment banking": {
+    "net_margin": 0.5327000000000001,
+    "ebit_margin": 0.1445,
+    "ebitda_margin": 0.025099999999999997
+  },
+  "building\n        materials": {
+    "net_margin": 0.3094,
+    "ebit_margin": 0.0742,
+    "ebitda_margin": 0.1328
+  },
+  "business &\n        consumer services": {
+    "net_margin": 0.33380000000000004,
+    "ebit_margin": 0.0703,
+    "ebitda_margin": 0.1366
+  },
+  "cable tv": {
+    "net_margin": 0.6291,
+    "ebit_margin": 0.0708,
+    "ebitda_margin": 0.1955
+  },
+  "chemical\n        (basic)": {
+    "net_margin": 0.0931,
+    "ebit_margin": -0.0373,
+    "ebitda_margin": 0.030600000000000002
+  },
+  "chemical\n        (diversified)": {
+    "net_margin": 0.1532,
+    "ebit_margin": -0.0535,
+    "ebitda_margin": 0.037599999999999995
+  },
+  "chemical\n        (specialty)": {
+    "net_margin": 0.35119999999999996,
+    "ebit_margin": 0.0291,
+    "ebitda_margin": 0.1285
+  },
+  "coal &\n        related energy": {
+    "net_margin": 0.14859999999999998,
+    "ebit_margin": -0.0213,
+    "ebitda_margin": -0.028900000000000002
+  },
+  "computer\n        services": {
+    "net_margin": 0.2426,
+    "ebit_margin": 0.044500000000000005,
+    "ebitda_margin": 0.0827
+  },
+  "computers/peripherals": {
+    "net_margin": 0.3836,
+    "ebit_margin": 0.1778,
+    "ebitda_margin": 0.24960000000000002
+  },
+  "construction\n        supplies": {
+    "net_margin": 0.2552,
+    "ebit_margin": 0.10779999999999999,
+    "ebitda_margin": 0.1567
+  },
+  "diversified": {
+    "net_margin": 0.2581,
+    "ebit_margin": 0.1637,
+    "ebitda_margin": 0.22829999999999998
+  },
+  "drugs\n        (biotechnology)": {
+    "net_margin": 0.6078,
+    "ebit_margin": -0.05,
+    "ebitda_margin": 0.1617
+  },
+  "drugs\n        (pharmaceutical)": {
+    "net_margin": 0.7173,
+    "ebit_margin": 0.18539999999999998,
+    "ebitda_margin": 0.3124
+  },
+  "education": {
+    "net_margin": 0.4582,
+    "ebit_margin": 0.08789999999999999,
+    "ebitda_margin": 0.16699999999999998
+  },
+  "electrical\n        equipment": {
+    "net_margin": 0.3182,
+    "ebit_margin": 0.009399999999999999,
+    "ebitda_margin": 0.109
+  },
+  "electronics\n        (consumer & office)": {
+    "net_margin": 0.38770000000000004,
+    "ebit_margin": -0.0942,
+    "ebitda_margin": -0.002
+  },
+  "electronics\n        (general)": {
+    "net_margin": 0.2676,
+    "ebit_margin": 0.0647,
+    "ebitda_margin": 0.11800000000000001
+  },
+  "engineering/construction": {
+    "net_margin": 0.15460000000000002,
+    "ebit_margin": 0.0594,
+    "ebitda_margin": 0.0704
+  },
+  "entertainment": {
+    "net_margin": 0.4139,
+    "ebit_margin": 0.0443,
+    "ebitda_margin": 0.1333
+  },
+  "environmental\n        & waste services": {
+    "net_margin": 0.363,
+    "ebit_margin": 0.0824,
+    "ebitda_margin": 0.1532
+  },
+  "farming/agriculture": {
+    "net_margin": 0.1309,
+    "ebit_margin": 0.0391,
+    "ebitda_margin": 0.0565
+  },
+  "financial\n        svcs. (non-bank & insurance)": {
+    "net_margin": 0.6920000000000001,
+    "ebit_margin": 0.22190000000000001,
+    "ebitda_margin": 0.20850000000000002
+  },
+  "food\n        processing": {
+    "net_margin": 0.2323,
+    "ebit_margin": 0.0282,
+    "ebitda_margin": 0.11
+  },
+  "food\n        wholesalers": {
+    "net_margin": 0.15439999999999998,
+    "ebit_margin": 0.011699999999999999,
+    "ebitda_margin": 0.0275
+  },
+  "furn/home\n        furnishings": {
+    "net_margin": 0.3028,
+    "ebit_margin": 0.011000000000000001,
+    "ebitda_margin": 0.0719
+  },
+  "green &\n        renewable energy": {
+    "net_margin": 0.5524,
+    "ebit_margin": -0.10830000000000001,
+    "ebitda_margin": 0.2043
+  },
+  "healthcare\n        products": {
+    "net_margin": 0.54,
+    "ebit_margin": 0.09609999999999999,
+    "ebitda_margin": 0.174
+  },
+  "healthcare\n        support services": {
+    "net_margin": 0.1208,
+    "ebit_margin": 0.0125,
+    "ebitda_margin": 0.0321
+  },
+  "heathcare\n        information and technology": {
+    "net_margin": 0.4832,
+    "ebit_margin": 0.0745,
+    "ebitda_margin": 0.17120000000000002
+  },
+  "homebuilding": {
+    "net_margin": 0.22699999999999998,
+    "ebit_margin": 0.0947,
+    "ebitda_margin": 0.1291
+  },
+  "hospitals/healthcare\n        facilities": {
+    "net_margin": 0.391,
+    "ebit_margin": 0.063,
+    "ebitda_margin": 0.1405
+  },
+  "hotel/gaming": {
+    "net_margin": 0.6085,
+    "ebit_margin": 0.1038,
+    "ebitda_margin": 0.2158
+  },
+  "household\n        products": {
+    "net_margin": 0.5104,
+    "ebit_margin": 0.1168,
+    "ebitda_margin": 0.1954
+  },
+  "information\n        services": {
+    "net_margin": 0.3408,
+    "ebit_margin": 0.0653,
+    "ebitda_margin": 0.1351
+  },
+  "insurance\n        (general)": {
+    "net_margin": 0.447,
+    "ebit_margin": 0.12369999999999999,
+    "ebitda_margin": 0.23070000000000002
+  },
+  "insurance\n        (life)": {
+    "net_margin": 0.2999,
+    "ebit_margin": 0.078,
+    "ebitda_margin": 0.1109
+  },
+  "insurance\n        (prop/cas.)": {
+    "net_margin": 0.3019,
+    "ebit_margin": 0.11130000000000001,
+    "ebitda_margin": 0.1567
+  },
+  "investments\n        & asset management": {
+    "net_margin": 0.6977,
+    "ebit_margin": 0.18359999999999999,
+    "ebitda_margin": 0.3059
+  },
+  "machinery": {
+    "net_margin": 0.3747,
+    "ebit_margin": 0.1058,
+    "ebitda_margin": 0.1678
+  },
+  "metals &\n        mining": {
+    "net_margin": 0.3468,
+    "ebit_margin": 0.1052,
+    "ebitda_margin": 0.2437
+  },
+  "office\n        equipment & services": {
+    "net_margin": 0.4143,
+    "ebit_margin": 0.0438,
+    "ebitda_margin": 0.11710000000000001
+  },
+  "oil/gas\n        (integrated)": {
+    "net_margin": 0.3608,
+    "ebit_margin": 0.083,
+    "ebitda_margin": 0.11560000000000001
+  },
+  "oil/gas\n        (production and exploration)": {
+    "net_margin": 0.5719,
+    "ebit_margin": 0.1463,
+    "ebitda_margin": 0.2632
+  },
+  "oil/gas\n        distribution": {
+    "net_margin": 0.4337,
+    "ebit_margin": 0.1335,
+    "ebitda_margin": 0.2656
+  },
+  "oilfield\n        svcs/equip.": {
+    "net_margin": 0.1109,
+    "ebit_margin": 0.023399999999999997,
+    "ebitda_margin": 0.049800000000000004
+  },
+  "packaging\n        & container": {
+    "net_margin": 0.2427,
+    "ebit_margin": 0.044800000000000006,
+    "ebitda_margin": 0.1003
+  },
+  "paper/forest\n        products": {
+    "net_margin": 0.1714,
+    "ebit_margin": 0.0344,
+    "ebitda_margin": 0.0702
+  },
+  "power": {
+    "net_margin": 0.4357,
+    "ebit_margin": 0.1273,
+    "ebitda_margin": 0.21899999999999997
+  },
+  "precious\n        metals": {
+    "net_margin": 0.5502,
+    "ebit_margin": 0.2859,
+    "ebitda_margin": 0.41009999999999996
+  },
+  "publishing\n        & newspapers": {
+    "net_margin": 0.5044,
+    "ebit_margin": 0.0819,
+    "ebitda_margin": 0.1101
+  },
+  "r.e.i.t.": {
+    "net_margin": 0.5808,
+    "ebit_margin": 0.1323,
+    "ebitda_margin": 0.2637
+  },
+  "real estate\n        (development)": {
+    "net_margin": 0.3527,
+    "ebit_margin": 0.0701,
+    "ebitda_margin": 0.22399999999999998
+  },
+  "real estate\n        (general/diversified)": {
+    "net_margin": 0.5123,
+    "ebit_margin": 0.2377,
+    "ebitda_margin": 0.2361
+  },
+  "real estate\n        (operations & services)": {
+    "net_margin": 0.3221,
+    "ebit_margin": 0.011899999999999999,
+    "ebitda_margin": 0.0455
+  },
+  "recreation": {
+    "net_margin": 0.3979,
+    "ebit_margin": -0.0472,
+    "ebitda_margin": 0.1137
+  },
+  "reinsurance": {
+    "net_margin": 0.1321,
+    "ebit_margin": 0.038900000000000004,
+    "ebitda_margin": 0.0745
+  },
+  "restaurant/dining": {
+    "net_margin": 0.3224,
+    "ebit_margin": 0.09369999999999999,
+    "ebitda_margin": 0.1716
+  },
+  "retail\n        (automotive)": {
+    "net_margin": 0.21960000000000002,
+    "ebit_margin": 0.0336,
+    "ebitda_margin": 0.06509999999999999
+  },
+  "retail\n        (building supply)": {
+    "net_margin": 0.3422,
+    "ebit_margin": 0.0784,
+    "ebitda_margin": 0.124
+  },
+  "retail\n        (distributors)": {
+    "net_margin": 0.3057,
+    "ebit_margin": 0.0605,
+    "ebitda_margin": 0.1056
+  },
+  "retail\n        (general)": {
+    "net_margin": 0.3318,
+    "ebit_margin": 0.056100000000000004,
+    "ebitda_margin": 0.0815
+  },
+  "retail\n        (grocery and food)": {
+    "net_margin": 0.2631,
+    "ebit_margin": 0.0132,
+    "ebitda_margin": 0.0255
+  },
+  "retail (reits)": {
+    "net_margin": 0.7861,
+    "ebit_margin": 0.23,
+    "ebitda_margin": 0.4163
+  },
+  "retail\n        (special lines)": {
+    "net_margin": 0.353,
+    "ebit_margin": 0.0519,
+    "ebitda_margin": 0.08410000000000001
+  },
+  "rubber&\n        tires": {
+    "net_margin": 0.17989999999999998,
+    "ebit_margin": -0.0949,
+    "ebitda_margin": 0.023799999999999998
+  },
+  "semiconductor": {
+    "net_margin": 0.5897,
+    "ebit_margin": 0.3045,
+    "ebitda_margin": 0.40369999999999995
+  },
+  "semiconductor\n        equip": {
+    "net_margin": 0.4632,
+    "ebit_margin": 0.2132,
+    "ebitda_margin": 0.2834
+  },
+  "shipbuilding\n        & marine": {
+    "net_margin": 0.2708,
+    "ebit_margin": 0.09480000000000001,
+    "ebitda_margin": 0.1329
+  },
+  "shoe": {
+    "net_margin": 0.4388,
+    "ebit_margin": 0.06269999999999999,
+    "ebitda_margin": 0.10400000000000001
+  },
+  "software\n        (entertainment)": {
+    "net_margin": 0.6645,
+    "ebit_margin": 0.2993,
+    "ebitda_margin": 0.41350000000000003
+  },
+  "software\n        (internet)": {
+    "net_margin": 0.6258,
+    "ebit_margin": -0.009300000000000001,
+    "ebitda_margin": 0.1855
+  },
+  "software\n        (system & application)": {
+    "net_margin": 0.7172,
+    "ebit_margin": 0.25489999999999996,
+    "ebitda_margin": 0.4081
+  },
+  "steel": {
+    "net_margin": 0.1225,
+    "ebit_margin": 0.019299999999999998,
+    "ebitda_margin": 0.045
+  },
+  "telecom\n        (wireless)": {
+    "net_margin": 0.6297999999999999,
+    "ebit_margin": 0.12240000000000001,
+    "ebitda_margin": 0.2198
+  },
+  "telecom.\n        equipment": {
+    "net_margin": 0.5814,
+    "ebit_margin": 0.1609,
+    "ebitda_margin": 0.259
+  },
+  "telecom.\n        services": {
+    "net_margin": 0.5882000000000001,
+    "ebit_margin": 0.142,
+    "ebitda_margin": 0.21050000000000002
+  },
+  "tobacco": {
+    "net_margin": 0.6431,
+    "ebit_margin": 0.26649999999999996,
+    "ebitda_margin": 0.4404
+  },
+  "transportation": {
+    "net_margin": 0.24100000000000002,
+    "ebit_margin": 0.0823,
+    "ebitda_margin": 0.08449999999999999
+  },
+  "transportation\n        (railroads)": {
+    "net_margin": 0.5096,
+    "ebit_margin": 0.2473,
+    "ebitda_margin": 0.379
+  },
+  "trucking": {
+    "net_margin": 0.2119,
+    "ebit_margin": 0.0379,
+    "ebitda_margin": 0.0731
+  },
+  "utility\n        (general)": {
+    "net_margin": 0.44179999999999997,
+    "ebit_margin": 0.1418,
+    "ebitda_margin": 0.2384
+  },
+  "utility\n        (water)": {
+    "net_margin": 0.5897,
+    "ebit_margin": 0.2116,
+    "ebitda_margin": 0.3446
+  },
+  "total market": {
+    "net_margin": 0.3776,
+    "ebit_margin": 0.0974,
+    "ebitda_margin": 0.1439
+  },
+  "total market\n        (without financials)": {
+    "net_margin": 0.3439,
+    "ebit_margin": 0.08560000000000001,
+    "ebitda_margin": 0.1465
+  }
+}

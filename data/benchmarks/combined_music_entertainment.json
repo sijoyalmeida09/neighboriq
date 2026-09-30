@@ -1,0 +1,26 @@
+{
+  "domain_id": "music_entertainment",
+  "industry_label": "Music Entertainment",
+  "revenue_p25": 9000,
+  "revenue_p50": 15000,
+  "revenue_p75": 23250,
+  "net_margin_typical": 0.4139,
+  "gross_margin_typical": 0.0443,
+  "ebitda_margin": 0.1333,
+  "avg_hourly_wage": 30.56,
+  "employee_revenue_ratio": 60000,
+  "customer_ltv_typical": 1200,
+  "churn_annual": null,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.956,
+    "labor": -0.185,
+    "marketing": -0.044
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "BLS OES 2024"
+  ]
+}

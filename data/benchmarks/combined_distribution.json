@@ -1,0 +1,25 @@
+{
+  "domain_id": "distribution",
+  "industry_label": "Distribution",
+  "revenue_p25": 72000,
+  "revenue_p50": 120000,
+  "revenue_p75": 186000,
+  "net_margin_typical": 0.1544,
+  "gross_margin_typical": 0.0117,
+  "ebitda_margin": 0.0275,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 480000,
+  "customer_ltv_typical": 80000,
+  "churn_annual": 0.08,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.988,
+    "labor": -0.043,
+    "marketing": -0.017
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "domain_id": "education",
+  "industry_label": "Education",
+  "revenue_p25": 10800,
+  "revenue_p50": 18000,
+  "revenue_p75": 27900,
+  "net_margin_typical": 0.4582,
+  "gross_margin_typical": 0.0879,
+  "ebitda_margin": 0.167,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 72000,
+  "customer_ltv_typical": 7500,
+  "churn_annual": null,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.912,
+    "labor": -0.185,
+    "marketing": -0.044
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026"
+  ]
+}

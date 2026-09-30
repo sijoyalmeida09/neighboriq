@@ -1,0 +1,26 @@
+{
+  "domain_id": "software_saas",
+  "industry_label": "Software Saas",
+  "revenue_p25": 15000,
+  "revenue_p50": 25000,
+  "revenue_p75": 38750,
+  "net_margin_typical": 0.6645,
+  "gross_margin_typical": 0.2993,
+  "ebitda_margin": 0.4135,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 100000,
+  "customer_ltv_typical": 8000,
+  "churn_annual": 0.15,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.701,
+    "labor": -0.182,
+    "marketing": -0.044
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "FRED DGORDER"
+  ]
+}

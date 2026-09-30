@@ -1,0 +1,26 @@
+{
+  "domain_id": "retail",
+  "industry_label": "Retail",
+  "revenue_p25": 30000,
+  "revenue_p50": 50000,
+  "revenue_p75": 77500,
+  "net_margin_typical": 0.2196,
+  "gross_margin_typical": 0.0336,
+  "ebitda_margin": 0.0651,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 200000,
+  "customer_ltv_typical": 1800,
+  "churn_annual": null,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.966,
+    "labor": -0.056,
+    "marketing": -0.022
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "FRED RSCCAS"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "domain_id": "logistics",
+  "industry_label": "Logistics",
+  "revenue_p25": 51000,
+  "revenue_p50": 85000,
+  "revenue_p75": 131750,
+  "net_margin_typical": 0.2119,
+  "gross_margin_typical": 0.0379,
+  "ebitda_margin": 0.0731,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 340000,
+  "customer_ltv_typical": 45000,
+  "churn_annual": 0.12,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.962,
+    "labor": -0.052,
+    "marketing": -0.021
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "FRED TRFVOLUSM227NFWA"
+  ]
+}

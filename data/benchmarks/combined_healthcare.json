@@ -1,0 +1,26 @@
+{
+  "domain_id": "healthcare",
+  "industry_label": "Healthcare",
+  "revenue_p25": 27000,
+  "revenue_p50": 45000,
+  "revenue_p75": 69750,
+  "net_margin_typical": 0.54,
+  "gross_margin_typical": 0.0961,
+  "ebitda_margin": 0.174,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 180000,
+  "customer_ltv_typical": 6000,
+  "churn_annual": null,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "HIGH",
+  "top_costs_pct_json": {
+    "cogs": 0.904,
+    "labor": -0.222,
+    "marketing": -0.053
+  },
+  "data_sources_list": [
+    "Damodaran NYU Stern Industry Margins 2026",
+    "FRED HLTHSCPCHCSA"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "domain_id": "food_beverage",
+  "industry_label": "Food Beverage",
+  "revenue_p25": 21000,
+  "revenue_p50": 35000,
+  "revenue_p75": 54250,
+  "net_margin_typical": 0.05,
+  "gross_margin_typical": 0.65,
+  "ebitda_margin": 0.08,
+  "avg_hourly_wage": 18.0,
+  "employee_revenue_ratio": 140000,
+  "customer_ltv_typical": 2200,
+  "churn_annual": null,
+  "growth_rate_industry": 3.0,
+  "vintage_year": 2026,
+  "confidence": "LOW",
+  "top_costs_pct_json": {
+    "cogs": 0.35,
+    "labor": 0.3,
+    "rent": 0.108,
+    "marketing": 0.072,
+    "overhead": 0.12
+  },
+  "data_sources_list": [
+    "hardcoded_defaults",
+    "FRED RSFSDP"
+  ]
+}
