@@ -306,11 +306,15 @@ class GrowthForecast:
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _fmt_date(d: date) -> str:
-    return d.strftime("%b %-d, %Y") if hasattr(d, "strftime") else str(d)
+    if not hasattr(d, "strftime"):
+        return str(d)
+    return f"{d.strftime('%b')} {d.day}, {d.year}"
 
 
 def _fmt_date_long(d: date) -> str:
-    return d.strftime("%B %-d, %Y") if hasattr(d, "strftime") else str(d)
+    if not hasattr(d, "strftime"):
+        return str(d)
+    return f"{d.strftime('%B')} {d.day}, {d.year}"
 
 
 def _fmt_usd(n: int) -> str:
@@ -566,7 +570,7 @@ def generate_forecast(
     return GrowthForecast(
         biz_name=profile.name,
         domain_id=domain.domain_id,
-        start_date=start_date.strftime("%B %-d, %Y"),
+        start_date=f"{start_date.strftime('%B')} {start_date.day}, {start_date.year}",
         market=market,
         weekly_milestones=weekly,
         monthly_targets=monthly,
