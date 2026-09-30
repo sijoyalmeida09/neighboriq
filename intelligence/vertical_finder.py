@@ -451,6 +451,61 @@ _RULES: list[_AdjacencyRule] = [
         skills_overlap_pct=0.40,
         domain_fit="professional_services,agency_services,retail,distribution",
     ),
+
+    # ── Funeral / death-care specific rules ──────────────────────────────────
+    _rule(
+        lambda p, d: (
+            (p.naics_code or "").startswith("8122")
+            or "funeral" in (p.description or "").lower()
+            or any("repatriation" in proc.lower() for proc in p.proprietary_processes)
+        ),
+        name="Pre-Need Funeral Planning Contracts",
+        rationale="Massachusetts allows pre-need funeral contracts — families pay today's price for future services. Avg contract $3K-8K. No new staff needed. 30-50% of pre-need revenue is profit because families rarely redeem at full value. Industry standard: 20-40% of revenue comes from pre-need.",
+        assets_leveraged=("existing client relationships", "funeral director license", "existing chapel"),
+        capital_required=500,
+        months_to_first_revenue=1,
+        monthly_revenue_at_maturity=12000,
+        risk_level="LOW",
+        skills_overlap_pct=0.95,
+        requires_new_license=False,
+        domain_fit="local_service",
+    ),
+
+    _rule(
+        lambda p, d: (
+            any("repatriation" in proc.lower() for proc in p.proprietary_processes)
+            or any("repatriation" in c.lower() for c in p.exclusive_supplier_contracts)
+        ),
+        name="Repatriation Service Expansion — New England Diaspora Cities",
+        rationale="Anyone who has handled Haiti repatriation has the hardest part solved (morgue contacts, air cargo, consulate). Providence RI, Hartford CT, and New Haven CT each have 10,000-25,000 Haitian residents with NO local repatriation specialist. Serve them with just a phone and your existing Haiti network — no second location needed.",
+        assets_leveraged=("existing Haiti morgue contacts", "air cargo partner relationship", "Creole language + cultural knowledge"),
+        capital_required=0,
+        months_to_first_revenue=2,
+        monthly_revenue_at_maturity=8000,
+        risk_level="LOW",
+        skills_overlap_pct=0.90,
+        requires_new_license=True,
+        license_name="MA Funeral Director license covers transport; Rhode Island and Connecticut reciprocity agreements may apply",
+        domain_fit="local_service",
+    ),
+
+    _rule(
+        lambda p, d: (
+            (p.naics_code or "").startswith("8122")
+            or any("grief" in role.lower() for role, _ in p.roles)
+            or "funeral" in (p.description or "").lower()
+        ),
+        name="Creole Grief Support Group — Monthly Subscription",
+        rationale="Haitian families have no Creole-language grief support in Boston. A monthly group of 20-40 families at $50-100/mo = $1K-4K/mo recurring. Zero capital — just your chapel space on off-days. Deepens community trust, generates pre-need leads, and differentiates you from every competitor.",
+        assets_leveraged=("existing chapel space on off-days", "grief counselor on staff", "Creole-speaking capability", "existing client family database"),
+        capital_required=0,
+        months_to_first_revenue=1,
+        monthly_revenue_at_maturity=2500,
+        risk_level="LOW",
+        skills_overlap_pct=0.85,
+        requires_new_license=False,
+        domain_fit="local_service",
+    ),
 ]
 
 

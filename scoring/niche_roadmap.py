@@ -793,6 +793,57 @@ _reg(
 )
 
 
+_reg(
+    niche="funeral_home",
+    phase1_name="Dignified Standard",
+    phase1_timeline="Months 1-6",
+    phase1_actions=(
+        "Register with Massachusetts Funeral Directors Association (MFDA) — referral pipeline + legal protection",
+        "Get all Google Business reviews responded to within 24hr — funeral families research 4+ providers before choosing",
+        "Create a pre-need funeral planning brochure (Massachusetts allows pre-need contracts) — $3K-8K per family upfront",
+        "Partner with local Haitian churches and community centers for referral exchange",
+        "Document all repatriation logistics into a repeatable SOP — cost basis, airline contacts, Haiti consulate process",
+    ),
+    phase1_revenue_target=35000,
+    phase1_exit_criteria="Pre-need program launched; 2+ church referral partnerships active; SOP documented",
+    phase2_name="Diaspora Network Hub",
+    phase2_timeline="Months 7-18",
+    phase2_actions=(
+        "Launch grief support group in Creole — monthly meetings, $50-100/family/mo subscription, 20-40 families = $1K-4K/mo recurring",
+        "Expand repatriation service to Haitian diaspora in Providence RI + New Haven CT + Hartford CT — same network, new geography",
+        "Offer Haitian death certificate authentication + translation services ($150-300/document) — families need this anyway",
+        "Partner with burial insurance agent (Massachusetts Mutual, Foresters) — earn $500-1500 per policy referred",
+        "Host annual Fet Gede (Haitian Day of the Dead) community event — 200+ attendees, $25-50 ticket, cultural anchor",
+    ),
+    phase2_revenue_target=55000,
+    phase2_exit_criteria="Grief group has 25+ paying families; repatriation expanded to 2+ cities; insurance partnership active",
+    phase3_name="New England Haitian Death-Care Institution",
+    phase3_timeline="Months 19-36",
+    phase3_actions=(
+        "Open satellite arrangement office in Providence RI or Hartford CT (no embalming needed — just arrangement desk + transport)",
+        "Launch Haitian pre-need trust fund — partner with a MA-licensed funeral insurance provider for guaranteed-price plans",
+        "License your repatriation SOP to 3 non-competing Haitian funeral homes in Miami/NYC/Montreal for $500-1500/mo each",
+        "Build an estate services partnership — probate attorneys, Haitian community banks, immigrant financial advisors",
+        "Target 25+ repatriations/yr to Haiti — position as the New England specialist, charge 30% premium over generic providers",
+    ),
+    phase3_revenue_target=90000,
+    phase3_exit_criteria="2+ arrangement offices; licensed SOP to 2+ out-of-state homes; regional brand recognized in Haitian press",
+    old_experience_score=4.0,
+    new_experience_score=9.0,
+    delta=5.0,
+    delta4_what_changes="From generic American funeral home with language barrier to Haitian family's trusted community institution — one call, they never switch",
+    irreversibility_trigger="First family that experiences a repatriation handled in 48hr with Creole support — they refer every single person in their network",
+    delta4_enabled=True,
+    visit_frequency_days=730,
+    customer_ltv_usd=18000,
+    loyalty_mechanic="Pre-need funeral contract — family locks in today's prices for guaranteed future service; creates 100% retention",
+    referral_trigger="Repatriation handled in 48hr — family posts on Facebook Haitian groups (each has 5,000-30,000 members) before even leaving the airport",
+    repeat_revenue_pct=35.0,
+    nse_score=87,
+    moat_type="cultural_language_trust",
+    hardest_thing="Building the Haiti air cargo + morgue network and Haitian consulate relationships — takes 2+ years and can't be copied quickly",
+)
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------

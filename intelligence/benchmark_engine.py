@@ -114,6 +114,18 @@ _DOMAIN_DEFAULTS: dict[str, dict] = {
     "professional_services":{"net_margin": 0.22, "gross_margin": 0.60, "revenue_p50_monthly": 35_000,  "growth": 4.0},
 }
 
+# NAICS-prefix overrides — more accurate than broad domain defaults for specific industries
+# Sources: Census SUSB 2022 NAICS 812210 (funeral directors), NFDA industry data
+_NAICS_DEFAULTS: dict[str, dict] = {
+    "8122": {"net_margin": 0.18, "gross_margin": 0.65, "revenue_p50_monthly": 65_000, "growth": 2.0,
+             "revenue_p25_monthly": 35_000, "revenue_p75_monthly": 110_000, "avg_wage": 28.0,
+             "employee_revenue_ratio": 175_000},  # funeral services
+    "6211": {"net_margin": 0.12, "gross_margin": 0.55, "revenue_p50_monthly": 55_000, "growth": 5.0,
+             "revenue_p25_monthly": 30_000, "revenue_p75_monthly": 90_000, "avg_wage": 35.0},  # physician offices
+    "4841": {"net_margin": 0.07, "gross_margin": 0.38, "revenue_p50_monthly": 95_000, "growth": 4.5,
+             "revenue_p25_monthly": 52_000, "revenue_p75_monthly": 180_000, "avg_wage": 24.0},  # general freight trucking
+}
+
 # Customer LTV and churn estimates per domain (not available from free APIs — domain knowledge)
 _DOMAIN_LTV: dict[str, tuple[int, float | None]] = {
     # (ltv_usd, annual_churn or None)
@@ -568,6 +580,12 @@ def get_benchmarks(
     sources_used: list[str] = []
     current_year = 2026
 
+    # Apply NAICS-prefix override when a more accurate baseline exists
+    _naics_key = (naics_prefix or "")[:4]
+    if _naics_key in _NAICS_DEFAULTS:
+        defaults = {**defaults, **_NAICS_DEFAULTS[_naics_key]}
+        sources_used.append(f"NAICS-{_naics_key} industry baseline")
+
     # 1. Damodaran margins
     raw_damodaran = _fetch_damodaran_margins()
     margin_data = _find_damodaran_industry(domain_id, raw_damodaran)
@@ -591,6 +609,11 @@ def get_benchmarks(
     susb = _fetch_census_susb(naics) if naics else {}
     p50_fallback = defaults["revenue_p50_monthly"]
     p25, p50, p75 = _estimate_revenue_percentiles(susb, p50_fallback)
+    # Override p25/p75 with NAICS-specific values when available (more accurate than derived ratios)
+    if "revenue_p25_monthly" in defaults:
+        p25 = defaults["revenue_p25_monthly"]
+    if "revenue_p75_monthly" in defaults:
+        p75 = defaults["revenue_p75_monthly"]
     if susb:
         sources_used.append("Census SUSB 2022")
         confidence = "HIGH" if confidence == "HIGH" else "MEDIUM"

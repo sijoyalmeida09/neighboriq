@@ -410,20 +410,28 @@ def _generate_monthly_targets(
     margin = max(0.01, benchmarks.net_margin_typical)
     key_metric = _KEY_METRIC_LABEL.get(domain_id, "revenue ($)")
 
-    # Phase boundaries
-    phases = [
-        (1, 3, current, p25, "Build systems and first recurring clients"),
-        (4, 6, p25, p50, "Hit benchmark median — proof of scalability"),
-        (7, 12, p50, p75, "Outperform benchmark — employer-grade operation"),
-        (13, 24, p75, int(p75 * 1.4), "Sustain excellence + vertical expansion"),
-    ]
+    # Phase boundaries — when already above p75, project growth from current baseline
+    if current > p75:
+        phases = [
+            (1, 6,  current,            int(current * 1.05), "Sustain top-quartile performance + systematize"),
+            (7, 12, int(current * 1.05), int(current * 1.15), "Add first vertical — revenue above benchmark ceiling"),
+            (13, 18, int(current * 1.15), int(current * 1.30), "Second vertical mature — expanding geography or licensing"),
+            (19, 24, int(current * 1.30), int(current * 1.50), "Regional expansion or licensing model — institutional scale"),
+        ]
+    else:
+        phases = [
+            (1, 3, current, p25, "Build systems and first recurring clients"),
+            (4, 6, p25, p50, "Hit benchmark median — proof of scalability"),
+            (7, 12, p50, p75, "Outperform benchmark — employer-grade operation"),
+            (13, 24, p75, int(p75 * 1.4), "Sustain excellence + vertical expansion"),
+        ]
 
     targets: list[MonthlyTarget] = []
     for phase_start, phase_end, rev_start, rev_end, _ in phases:
         for mo in range(phase_start, min(phase_end + 1, months + 1)):
             t = (mo - phase_start) / max(1, phase_end - phase_start)
             rev = int(rev_start + (rev_end - rev_start) * t)
-            rev = max(rev, current)
+            rev = max(rev, current if current <= p75 else rev_start)
             profit = int(rev * margin)
             target_num = int(rev / max(1, rev // max(1, _key_metric_target_divisor(domain_id))))
             mdate = _add_months(start_date, mo)
