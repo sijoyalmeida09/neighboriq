@@ -6,6 +6,9 @@ Quickstart:
     from neighboriq.analyzers.domain_analyzer import analyze_domain
 
 CLI:
+    neighboriq init                              # auto-detect from current repo
+    neighboriq biz-audit --profile my.yaml      # audit from profile file
+    neighboriq biz-audit --interactive           # scan + questions
     neighboriq analyze --zip 02122
     neighboriq analyze --zip 02122 --depth full
     neighboriq analyze-business --url https://example.com

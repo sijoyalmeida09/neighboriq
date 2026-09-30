@@ -417,6 +417,72 @@ def _post_to_telegram(zip_code: str, opportunities: list[dict]) -> None:
         log.warning("Telegram post failed: %s", resp.text)
 
 
+def _cmd_init(args: argparse.Namespace) -> None:
+    print("NeighborIQ — Universal Business Intelligence Engine")
+    print("━" * 52)
+    from neighboriq.intelligence.analysis_queue import run_analysis
+    root = args.path or None
+    state = run_analysis(root_path=root, resume=not args.reset, force_restart=args.reset)
+    report = state.get("formatted_report", "")
+    if report:
+        print(report)
+    profile_dict = state.get("profile")
+    if profile_dict:
+        answer = input("\nSave profile YAML for future edits? (y/N): ").strip().lower()
+        if answer == "y":
+            try:
+                from neighboriq.intelligence.biz_profile import from_dict
+                from neighboriq.intelligence.auto_profiler import profile_to_yaml
+                profile = from_dict(profile_dict)
+                profile_to_yaml(profile, "business_profile.yaml")
+                print("Profile saved to business_profile.yaml — edit and re-run with:")
+                print("  neighboriq biz-audit --profile business_profile.yaml")
+            except Exception as exc:
+                log.warning("Could not save YAML: %s", exc)
+
+
+def _cmd_biz_audit(args: argparse.Namespace) -> None:
+    from neighboriq.intelligence.biz_profile import from_yaml, from_dict
+    from neighboriq.intelligence.domain_taxonomy import classify, get_domain
+    from neighboriq.intelligence.benchmark_engine import get_benchmarks
+    from neighboriq.intelligence.vertical_finder import find_verticals
+    from neighboriq.intelligence.universal_roadmap import generate_roadmap, format_roadmap
+
+    profile = None
+    if getattr(args, "interactive", False):
+        from neighboriq.intelligence.auto_profiler import quick_profile
+        profile, _ = quick_profile()
+    elif getattr(args, "profile", None):
+        try:
+            profile = from_yaml(args.profile)
+        except Exception as exc:
+            print(f"Could not load profile: {exc}")
+            return
+    else:
+        default_path = "business_profile.yaml"
+        if Path(default_path).exists():
+            try:
+                profile = from_yaml(default_path)
+            except Exception as exc:
+                print(f"Could not load {default_path}: {exc}")
+                return
+        else:
+            print("Run 'neighboriq init' first or specify --profile <path>")
+            return
+
+    domain_override = getattr(args, "domain", None)
+    if domain_override:
+        domain = get_domain(domain_override)
+    else:
+        domain = classify(profile)
+
+    print(f"Domain: {domain.domain_id} | Fetching benchmarks...")
+    benchmarks = get_benchmarks(domain.domain_id)
+    verticals = find_verticals(profile, benchmarks, domain.domain_id)
+    roadmap = generate_roadmap(profile, benchmarks, verticals, domain)
+    print(format_roadmap(roadmap))
+
+
 def _cmd_analyze_business(args: argparse.Namespace) -> None:
     url = args.url
     if not url.startswith(("http://", "https://")):
@@ -502,6 +568,17 @@ def main() -> None:
     p_biz.add_argument("--url", required=True, help="Business website URL")
     p_biz.add_argument("--zip", default="", help="Override zip code if page detection fails")
 
+    # init — auto-detect business from repo
+    p_init = sub.add_parser("init", help="Auto-detect business from repo + generate roadmap")
+    p_init.add_argument("--path", default=None, help="Repo path (default: current directory)")
+    p_init.add_argument("--reset", action="store_true", help="Ignore checkpoint, start fresh")
+
+    # biz-audit — full audit from profile YAML
+    p_audit = sub.add_parser("biz-audit", help="Full business audit from profile YAML")
+    p_audit.add_argument("--profile", default=None, help="Path to business_profile.yaml")
+    p_audit.add_argument("--domain", default=None, help="Override auto-detected domain")
+    p_audit.add_argument("--interactive", action="store_true", help="Run repo scan + questions")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -511,6 +588,8 @@ def main() -> None:
         "run": _cmd_run,
         "stats": _cmd_stats,
         "analyze-business": _cmd_analyze_business,
+        "init": _cmd_init,
+        "biz-audit": _cmd_biz_audit,
     }
     try:
         dispatch[args.command](args)

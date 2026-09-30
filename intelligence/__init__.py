@@ -24,6 +24,21 @@ from neighboriq.intelligence.domain_taxonomy import (
     get_domain,
     list_domains,
 )
+from neighboriq.intelligence.repo_scanner import (
+    RepoScan,
+    scan_repo,
+    format_scan_summary,
+)
+from neighboriq.intelligence.auto_profiler import (
+    build_profile_from_scan,
+    quick_profile,
+    profile_to_yaml,
+)
+from neighboriq.intelligence.analysis_queue import (
+    run_analysis,
+    get_report,
+    reset_analysis,
+)
 
 __all__ = [
     "BizProfile",
@@ -35,4 +50,13 @@ __all__ = [
     "classify",
     "get_domain",
     "list_domains",
+    "RepoScan",
+    "scan_repo",
+    "format_scan_summary",
+    "build_profile_from_scan",
+    "quick_profile",
+    "profile_to_yaml",
+    "run_analysis",
+    "get_report",
+    "reset_analysis",
 ]
