@@ -9,6 +9,7 @@ Usage:
     from neighboriq.intelligence.vertical_finder import find_verticals
     from neighboriq.intelligence.universal_roadmap import generate_roadmap, format_roadmap
     from neighboriq.intelligence.tool_selector import recommend_llm, full_stack_recommendation
+    from neighboriq.intelligence.milestone_engine import generate_forecast, format_forecast
 """
 from __future__ import annotations
 
@@ -55,6 +56,14 @@ from neighboriq.intelligence.tool_selector import (
     list_llms,
     list_automation_tools,
 )
+from neighboriq.intelligence.milestone_engine import (
+    WeeklyMilestone,
+    MonthlyTarget,
+    MarketSizing,
+    GrowthForecast,
+    generate_forecast,
+    format_forecast,
+)
 
 __all__ = [
     "BizProfile",
@@ -89,4 +98,11 @@ __all__ = [
     "format_recommendation",
     "list_llms",
     "list_automation_tools",
+    # Milestone engine
+    "WeeklyMilestone",
+    "MonthlyTarget",
+    "MarketSizing",
+    "GrowthForecast",
+    "generate_forecast",
+    "format_forecast",
 ]
