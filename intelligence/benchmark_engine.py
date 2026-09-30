@@ -563,7 +563,8 @@ def get_benchmarks(
     Falls back to hardcoded defaults when sources are unavailable.
     Results cached 30 days in data/benchmarks/.
     """
-    cache_key = f"combined_{domain_id}"
+    _naics_suffix = f"_{naics_prefix[:4]}" if naics_prefix else ""
+    cache_key = f"combined_{domain_id}{_naics_suffix}"
     if not force_refresh:
         cached = _load_cache(cache_key)
         if cached is not None:
@@ -581,7 +582,7 @@ def get_benchmarks(
     current_year = 2026
 
     # Apply NAICS-prefix override when a more accurate baseline exists
-    _naics_key = (naics_prefix or "")[:4]
+    _naics_key = (naics_prefix or "")[:4]  # already in cache_key suffix above
     if _naics_key in _NAICS_DEFAULTS:
         defaults = {**defaults, **_NAICS_DEFAULTS[_naics_key]}
         sources_used.append(f"NAICS-{_naics_key} industry baseline")

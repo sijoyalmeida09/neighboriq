@@ -401,7 +401,11 @@ _RULES: list[_AdjacencyRule] = [
     ),
 
     _rule(
-        lambda p, d: len(p.equipment) >= 2 and any(v > 5000 for _, v in p.equipment),
+        lambda p, d: (
+            len(p.equipment) >= 2
+            and any(v > 5000 for _, v in p.equipment)
+            and not (p.naics_code and p.naics_code.startswith("8122"))  # exclude funeral equipment
+        ),
         name="Equipment Idle-Time Rental (Yard Club / Fat Llama model)",
         rationale="Construction, restaurant, and trade equipment sits idle 60-70% of the time. Renting via Fat Llama, Yard Club, or direct local Facebook Marketplace earns $200-800/day per piece. $10K excavator = $500-800/day rental vs $0 sitting in your yard. Zero additional capital.",
         assets_leveraged=("owned equipment", "existing insurance coverage"),

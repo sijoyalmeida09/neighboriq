@@ -564,12 +564,22 @@ def generate_forecast(
     weekly = _generate_weekly_milestones(domain.domain_id, benchmarks, start_date)
     monthly = _generate_monthly_targets(benchmarks, profile, domain.domain_id, start_date)
     llm, llm_cost, framework, automation = _tool_recommendations(domain.domain_id)
-    novel = tuple(_NOVEL_OPPORTUNITIES.get(domain.domain_id, (
-        "Equipment idle-time rental — monetize downtime with zero new capital",
-        "Google Business optimization — most businesses have < 10 photos and no Q&A answered",
-        "Referral program — 20% of new clients from existing clients if you ask systematically",
-        "Annual prepay offer — discount 15%, collect 12 months upfront to fund growth",
-    )))
+    # NAICS-specific novel opportunities override domain-level defaults
+    _naics = (profile.naics_code or "")[:4]
+    if _naics == "8122":
+        novel = (
+            "Pre-need funeral contracts — families pay today's price for future services. Avg $3K-8K/contract, 30-50% margin. Zero new staff needed.",
+            "Repatriation expansion to Providence RI + Hartford CT + New Haven CT — 10K-25K Haitian residents each with NO local specialist. Use your existing Haiti network.",
+            "Creole grief support group — monthly subscription $50-100/family, 20-40 families = $1K-4K/mo recurring from your existing chapel space on off-days.",
+            "Document authentication — Haitian death certificates need translation + apostille + notarization. $150-300/document, families need this regardless.",
+        )
+    else:
+        novel = tuple(_NOVEL_OPPORTUNITIES.get(domain.domain_id, (
+            "Equipment idle-time rental — monetize downtime with zero new capital",
+            "Google Business optimization — most businesses have < 10 photos and no Q&A answered",
+            "Referral program — 20% of new clients from existing clients if you ask systematically",
+            "Annual prepay offer — discount 15%, collect 12 months upfront to fund growth",
+        )))
     total_invest = sum(m.cost_to_execute for m in weekly)
     break_even = _calculate_break_even(weekly, profile)
     year1_added = sum(m.revenue_impact_monthly for m in weekly)
